@@ -5,7 +5,7 @@ describe ActiveRecordSurvey do
 		expect(ActiveRecordSurvey::VERSION).not_to be nil
 	end
 
-	it 'builds a survey manually', :focus => true do
+	it 'builds a survey that can be taken and only records valid answers', :focus => true do
 		survey = ActiveRecordSurvey::Survey.new
 
 		q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1")
@@ -41,15 +41,56 @@ describe ActiveRecordSurvey do
 
 		survey.save
 
-		# Take survey
+		# Take survey with valid path
 		instance = ActiveRecordSurvey::Instance.new(:survey => survey)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q1_a1
+		)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q2_a2
+		)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q3_a2
+		)
 		instance.instance_nodes.build(
 			:instance => instance,
 			:node => q4_a2
 		)
-puts "\n--------------- Start save -----------------"
 		instance.save
-puts "\n--------------- Done save -----------------\n\n"		
-		puts instance.errors.inspect
+		expect(instance.valid?).to be(true)
+
+		# Take survey with invalid path
+		instance = ActiveRecordSurvey::Instance.new(:survey => survey)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q1_a1
+		)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q2_a2
+		)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q4_a2
+		)
+		instance.save
+		expect(instance.valid?).to be(false)
+
+		# Take survey with valid path
+		instance = ActiveRecordSurvey::Instance.new(:survey => survey)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q1_a3
+		)
+		instance.instance_nodes.build(
+			:instance => instance,
+			:node => q4_a1
+		)
+		instance.save
+		expect(instance.valid?).to be(true)
+
 	end
 end

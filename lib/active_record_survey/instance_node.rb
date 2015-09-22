@@ -7,13 +7,9 @@ module ActiveRecordSurvey
 		validates_presence_of :instance
 
 		validate do |i|
-			#puts "\n---------------- Validating ------------------------"
-			# If no instance node, 
-			#i.errors[:base] << "NO_INSTANCE_NODE" if i.instance.nil?
-			
-			#puts self.instance.survey.as_map.inspect
-			#puts self.instance.instance_nodes.inspect
-			#puts "---------------- Done Validating ------------------------"
+			if !self.node.instance_path_to_root?(self.instance)
+				i.errors[:base] << "MISSING_INSTANCE_NODE"
+			end
 		end
 	end
 end
