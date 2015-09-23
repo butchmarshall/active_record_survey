@@ -1,8 +1,6 @@
 # ActiveRecordSurvey
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/active_record_survey`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+An attempt at a more versatile data structure for making and taking surveys.
 
 ## Installation
 
@@ -32,8 +30,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/active_record_survey.
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/butchmarshall/active_record_survey.
 
 ## License
 

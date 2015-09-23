@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
 	spec.version       = ActiveRecordSurvey::VERSION
 	spec.authors       = ["Butch Marshall"]
 	spec.email         = ["butch.a.marshall@gmail.com"]
-	spec.summary       = "Survey using activerecord"
-	spec.description   = "Adds survey capabilities using activerecord"
+	spec.summary       = "Surveys using activerecord"
+	spec.description   = "A data structure for adding survey capabilities using activerecord"
 	spec.homepage      = "https://github.com/butchmarshall/active_record_survey"
 	spec.license       = "MIT"
 

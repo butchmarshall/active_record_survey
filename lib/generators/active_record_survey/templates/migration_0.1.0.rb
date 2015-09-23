@@ -11,6 +11,14 @@ class AddActiveRecordSurvey < ActiveRecord::Migration
 			t.timestamps null: false
 		end
 
+		create_table :active_record_survey_node_validations do |t|
+			t.references :active_record_survey_node
+			t.string :type
+			t.string :value
+
+			t.timestamps null: false
+		end
+
 		create_table :active_record_survey_node_maps do |t|
 			t.references :active_record_survey_node
 
@@ -34,12 +42,18 @@ class AddActiveRecordSurvey < ActiveRecord::Migration
 		create_table :active_record_survey_instance_nodes do |t|
 			t.references :active_record_survey_instance
 			t.references :active_record_survey_node
+			t.string :value
 
 			t.timestamps null: false
 		end
 	end
 
 	def self.down
+		drop_table :active_record_surveys
+		drop_table :active_record_survey_nodes
+		drop_table :active_record_survey_node_validations
 		drop_table :active_record_survey_node_maps
+		drop_table :active_record_survey_instances
+		drop_table :active_record_survey_instance_nodes
 	end
 end

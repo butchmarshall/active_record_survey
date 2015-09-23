@@ -15,6 +15,7 @@ module ActiveRecordSurvey
 			}
 
 			{
+				:type => self.node.class.to_s,
 				:text => "#{self.node.text}",
 				:children => children.collect { |i|
 					i.as_map(node_maps)
