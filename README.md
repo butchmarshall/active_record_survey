@@ -1,3 +1,6 @@
+[![Gem Version](https://badge.fury.io/rb/active_record_survey.svg)](http://badge.fury.io/rb/active_record_survey)
+[![Build Status](https://travis-ci.org/butchmarshall/active_record_survey.svg?branch=master)](https://travis-ci.org/butchmarshall/active_record_survey)
+
 # ActiveRecordSurvey
 
 An attempt at a more versatile data structure for making and taking surveys.
