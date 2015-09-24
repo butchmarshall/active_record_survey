@@ -13,6 +13,8 @@ require "active_record_survey/node"
 require "active_record_survey/node/question"
 require "active_record_survey/node/answer"
 require "active_record_survey/node/answer/text"
+require "active_record_survey/node/answer/rank"
+require "active_record_survey/node/answer/scale"
 require "active_record_survey/node/answer/boolean"
 
 require "active_record_survey/node_map"

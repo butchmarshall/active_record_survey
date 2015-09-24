@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Node::Answer::Boolean, :focus => true do
+describe ActiveRecordSurvey::Node::Answer::Boolean do
 	describe 'a boolean survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new

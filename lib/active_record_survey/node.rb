@@ -6,7 +6,9 @@ module ActiveRecordSurvey
 
 		# By default all values are accepted
 		def validate_instance_node(instance_node)
-			true
+			!self.node_validations.collect { |node_validation|
+				node_validation.validate_instance_node(instance_node, self)
+			}.include?(false)
 		end
 
 		# Whether there is a valid answer path from this node to the root node for the instance
