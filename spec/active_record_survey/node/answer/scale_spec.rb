@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Node::Answer::Scale, :focus => true do
+describe ActiveRecordSurvey::Node::Answer::Scale do
 	describe 'survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
