@@ -3,7 +3,7 @@ module ActiveRecordSurvey
 	class NodeValidation::MaximumLength < NodeValidation
 		# Validate the instance_node value
 		def validate_instance_node(instance_node, node = nil)
-			instance_node.value.to_s.length <= self.value.to_i
+			(self.value.to_i >= instance_node.value.to_s.length.to_i)
 		end
 	end
 end

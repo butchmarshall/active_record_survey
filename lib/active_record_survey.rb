@@ -24,6 +24,8 @@ require "active_record_survey/node_validation/minimum_value"
 require "active_record_survey/node_validation/maximum_value"
 require "active_record_survey/node_validation/maximum_length"
 require "active_record_survey/node_validation/minimum_length"
+require "active_record_survey/node_validation/minimum_answer"
+require "active_record_survey/node_validation/maximum_answer"
 
 require "active_record_survey/instance"
 require "active_record_survey/instance_node"

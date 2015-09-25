@@ -90,5 +90,44 @@ describe ActiveRecordSurvey::Node::Answer::Boolean do
 				expect(instance.valid?).to be(false)
 			end
 		end
+
+		describe ActiveRecordSurvey::NodeValidation::MinimumAnswer do
+			describe 'valid when' do
+				it 'has a value greater than the minimum' do
+					@q1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumAnswer.new(
+						:node => @q1,
+						:value => 2 # 2 of the 3 answers must be "answered"
+					)
+					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
+					instance.instance_nodes.build(
+						:instance => instance,
+						:node => @q1_a1,
+						:value => "this is greater than minimum length",
+					)
+					instance.save
+	
+					#expect(instance.valid?).to be(true)
+				end
+			end
+=begin
+			describe 'invalid when' do
+				it 'has a value less than the minimum' do
+					@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumLength.new(
+						:node => @q1_a1,
+						:value => 3
+					)
+					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
+					instance.instance_nodes.build(
+						:instance => instance,
+						:node => @q1_a1,
+						:value => "12",
+					)
+					instance.save
+
+					expect(instance.valid?).to be(false)
+				end
+			end
+=end
+		end
 	end
 end
