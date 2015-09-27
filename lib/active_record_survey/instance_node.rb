@@ -15,12 +15,18 @@ module ActiveRecordSurvey
 			# Two instance_nodes on the same node for this instance
 			if self.instance.instance_nodes.select { |i|
 					# Two votes share a parent (this means a question has two answers for this instance)
-					(i.node.node_maps.collect { |j| j.parent } & self.node.node_maps.collect { |j| j.parent }).length > 0
+					(i.node.node_maps.collect { |j|
+						j.parent
+					} & self.node.node_maps.collect { |j|
+						j.parent
+					}).length > 0
 				}.length > 1
 				instance_node.errors[:base] << "DUPLICATE_PATH"
 			end
 
-			instance_node.errors[:base] << "INVALID" if !self.node.validate_instance_node(self)
+			if !self.node.validate_instance_node(self)
+				instance_node.errors[:base] << "INVALID"
+			end
 		end
 	end
 end

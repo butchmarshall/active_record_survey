@@ -22,5 +22,16 @@ module ActiveRecordSurvey
 				}
 			}
 		end
+
+		# Gets all the child nodes until one is not an ancestor of klass
+		def children_until_node_not_ancestor_of(klass)
+			if !self.node.class.ancestors.include?(klass)
+				return []
+			end
+
+			[self] + self.children.collect { |i|
+				i.children_until_node_not_ancestor_of(klass)
+			}
+		end
 	end
 end
