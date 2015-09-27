@@ -81,12 +81,15 @@ describe ActiveRecordSurvey::Node::Answer::Scale do
 		end
 
 		describe ActiveRecordSurvey::NodeValidation::MinimumValue do
+			before(:all) do
+				@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumValue.new(
+					:node => @q1_a1,
+					:value => 4
+				)
+			end
+
 			describe 'valid when' do
 				it 'has a value greater than the minimum' do
-					@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumValue.new(
-						:node => @q1_a1,
-						:value => 4
-					)
 					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
 					instance.instance_nodes.build(
 						:instance => instance,
@@ -101,15 +104,11 @@ describe ActiveRecordSurvey::Node::Answer::Scale do
 
 			describe 'invalid when' do
 				it 'has a value less than the minimum' do
-					@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumValue.new(
-						:node => @q1_a1,
-						:value => 6
-					)
 					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
 					instance.instance_nodes.build(
 						:instance => instance,
 						:node => @q1_a1,
-						:value => 5,
+						:value => 3,
 					)
 					instance.save
 
@@ -119,12 +118,15 @@ describe ActiveRecordSurvey::Node::Answer::Scale do
 		end
 
 		describe ActiveRecordSurvey::NodeValidation::MaximumValue do
+			before(:all) do
+				@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MaximumValue.new(
+					:node => @q1_a1,
+					:value => 15
+				)
+			end
+
 			describe 'valid when' do
 				it 'has a value less than the maximum' do
-					@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MaximumValue.new(
-						:node => @q1_a1,
-						:value => 15
-					)
 					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
 					instance.instance_nodes.build(
 						:instance => instance,
@@ -139,10 +141,6 @@ describe ActiveRecordSurvey::Node::Answer::Scale do
 
 			describe 'invalid when' do
 				it 'has a value greater than the maximum' do
-					@q1_a1.node_validations << ActiveRecordSurvey::NodeValidation::MaximumValue.new(
-						:node => @q1_a1,
-						:value => 15
-					)
 					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
 					instance.instance_nodes.build(
 						:instance => instance,

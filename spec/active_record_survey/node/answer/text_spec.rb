@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Node::Answer::Text, :test => true do
+describe ActiveRecordSurvey::Node::Answer::Text do
 	describe 'a text survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new

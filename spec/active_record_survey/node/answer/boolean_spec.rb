@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Node::Answer::Boolean, :focus => true do
+describe ActiveRecordSurvey::Node::Answer::Boolean do
 	describe 'a boolean survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
@@ -17,15 +17,6 @@ describe ActiveRecordSurvey::Node::Answer::Boolean, :focus => true do
 			nodes = @survey.build_question(@q1_a3, [], nodes[0])
 			nodes = @survey.build_question(@q1_a4, [], nodes[0])
 			nodes = @survey.build_question(@q1_a5, [], nodes[0])
-
-			@q1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumAnswer.new(
-				:node => @q1,
-				:value => 1 # min 1 of the 3 answers must be "answered"
-			)
-			@q1.node_validations << ActiveRecordSurvey::NodeValidation::MaximumAnswer.new(
-				:node => @q1,
-				:value => 3 # max 2 of the 3 answers must be "answered"
-			)
 
 			@survey.save
 		end
@@ -107,6 +98,17 @@ describe ActiveRecordSurvey::Node::Answer::Boolean, :focus => true do
 
 				expect(instance.valid?).to be(false)
 			end
+		end
+
+		before(:all) do
+			@q1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumAnswer.new(
+				:node => @q1,
+				:value => 1 # min 1 of the 3 answers must be "answered"
+			)
+			@q1.node_validations << ActiveRecordSurvey::NodeValidation::MaximumAnswer.new(
+				:node => @q1,
+				:value => 3 # max 2 of the 3 answers must be "answered"
+			)
 		end
 
 		describe ActiveRecordSurvey::NodeValidation::MinimumAnswer do
