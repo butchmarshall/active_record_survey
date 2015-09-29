@@ -5,9 +5,9 @@ describe ActiveRecordSurvey::Node::Answer::Text, :text_spec => true do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
 
-			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "What... what do you think?")
-			@q1_a1 = ActiveRecordSurvey::Node::Answer::Text.new(:text => "Text #1")
-			@q1_a2 = ActiveRecordSurvey::Node::Answer::Text.new(:text => "Text #2")
+			@q1 = ActiveRecordSurvey::Node::Question.new()
+			@q1_a1 = ActiveRecordSurvey::Node::Answer::Text.new()
+			@q1_a2 = ActiveRecordSurvey::Node::Answer::Text.new()
 
 			nodes = @survey.build_question(@q1, [@q1_a1])
 			nodes = @survey.build_question(@q1_a2, [], nodes[1])

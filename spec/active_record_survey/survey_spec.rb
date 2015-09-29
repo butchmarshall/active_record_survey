@@ -5,22 +5,22 @@ describe ActiveRecordSurvey::Survey do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
 
-			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1")
-			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
-			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A2")
-			@q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A3")
+			@q1 = ActiveRecordSurvey::Node::Question.new()
+			@q1_a1 = ActiveRecordSurvey::Node::Answer.new()
+			@q1_a2 = ActiveRecordSurvey::Node::Answer.new()
+			@q1_a3 = ActiveRecordSurvey::Node::Answer.new()
 
-			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2")
-			@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A1")
-			@q2_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A2")
+			@q2 = ActiveRecordSurvey::Node::Question.new()
+			@q2_a1 = ActiveRecordSurvey::Node::Answer.new()
+			@q2_a2 = ActiveRecordSurvey::Node::Answer.new()
 
-			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3")
-			@q3_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 A1")
-			@q3_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 A2")
+			@q3 = ActiveRecordSurvey::Node::Question.new()
+			@q3_a1 = ActiveRecordSurvey::Node::Answer.new()
+			@q3_a2 = ActiveRecordSurvey::Node::Answer.new()
 
-			@q4 = ActiveRecordSurvey::Node::Question.new(:text => "Q4")
-			@q4_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 A1")
-			@q4_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 A2")
+			@q4 = ActiveRecordSurvey::Node::Question.new()
+			@q4_a1 = ActiveRecordSurvey::Node::Answer.new()
+			@q4_a2 = ActiveRecordSurvey::Node::Answer.new()
 
 			q1_nodes = @survey.build_question(@q1, [@q1_a1, @q1_a2, @q1_a3])
 			q2_nodes = @survey.build_question(@q2, [@q2_a1, @q2_a2], q1_nodes[1])

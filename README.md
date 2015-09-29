@@ -5,6 +5,10 @@
 
 An attempt at a more versatile data structure for making and taking surveys.
 
+This gem tries to be as unopinionated as possible on the peripheral details on how you implement a survey.
+
+The goal is to give a simple interface for creating surveys and validating the answers given to them.
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -23,7 +27,48 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+See the spec file for more detailed usage.
+
+**Build a basic survey**
+```ruby
+
+q1 = ActiveRecordSurvey::Node::Question.new() # Q1
+q1_a1 = ActiveRecordSurvey::Node::Answer.new() # Q1 A1
+q1_a2 = ActiveRecordSurvey::Node::Answer.new() # Q1 A2
+q1_a3 = ActiveRecordSurvey::Node::Answer.new() # Q1 A3
+
+q2 = ActiveRecordSurvey::Node::Question.new() # Q2
+q2_a1 = ActiveRecordSurvey::Node::Answer.new() # Q2 A1
+q2_a2 = ActiveRecordSurvey::Node::Answer.new() # Q2 A2
+
+q3 = ActiveRecordSurvey::Node::Question.new() # Q3
+q3_a1 = ActiveRecordSurvey::Node::Answer.new() # Q3 A1
+q3_a2 = ActiveRecordSurvey::Node::Answer.new() # Q3 A2
+
+q4 = ActiveRecordSurvey::Node::Question.new() # Q4
+q4_a1 = ActiveRecordSurvey::Node::Answer.new() # Q4 A1
+q4_a2 = ActiveRecordSurvey::Node::Answer.new() # Q4 A2
+
+q1_nodes = survey.build_question(q1, [q1_a1, q1_a2, q1_a3])
+q2_nodes = survey.build_question(q2, [q2_a1, q2_a2], q1_nodes[1])
+q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q2_nodes[1])
+
+q3_nodes = survey.build_question(q3, [q3_a1, q3_a2], q2_nodes[2])
+q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[1])
+q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[2])
+
+q3_nodes = survey.build_question(q3, [q3_a1, q3_a2], q1_nodes[2])
+q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[1])
+q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[2])
+
+q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q1_nodes[3])
+
+survey.save
+```
+
+The will build a survey with the following node structure.
+
+![alt tag](https://raw.github.com/butchmarshall/active_record_survey/bin/Example_1.png)
 
 ## Development
 

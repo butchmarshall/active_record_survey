@@ -5,12 +5,12 @@ describe ActiveRecordSurvey::Node::Answer::Rank, :rank_spec => true do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
 
-			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Order by preference")
-			@q1_a1 = ActiveRecordSurvey::Node::Answer::Rank.new(:text => "Dogs")
-			@q1_a2 = ActiveRecordSurvey::Node::Answer::Rank.new(:text => "Cats")
-			@q1_a3 = ActiveRecordSurvey::Node::Answer::Rank.new(:text => "Mice")
-			@q1_a4 = ActiveRecordSurvey::Node::Answer::Rank.new(:text => "Ferrets")
-			@q1_a5 = ActiveRecordSurvey::Node::Answer::Rank.new(:text => "Rats")
+			@q1 = ActiveRecordSurvey::Node::Question.new()
+			@q1_a1 = ActiveRecordSurvey::Node::Answer::Rank.new()
+			@q1_a2 = ActiveRecordSurvey::Node::Answer::Rank.new()
+			@q1_a3 = ActiveRecordSurvey::Node::Answer::Rank.new()
+			@q1_a4 = ActiveRecordSurvey::Node::Answer::Rank.new()
+			@q1_a5 = ActiveRecordSurvey::Node::Answer::Rank.new()
 
 			nodes = @survey.build_question(@q1, [@q1_a1])
 			nodes = @survey.build_question(@q1_a2, [], nodes[1])

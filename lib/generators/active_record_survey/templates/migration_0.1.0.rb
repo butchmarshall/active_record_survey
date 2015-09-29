@@ -6,7 +6,6 @@ class AddActiveRecordSurvey < ActiveRecord::Migration
 
 		create_table :active_record_survey_nodes do |t|
 			t.string :type
-			t.string :text
 
 			t.timestamps null: false
 		end
