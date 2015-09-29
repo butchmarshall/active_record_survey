@@ -176,7 +176,7 @@ describe ActiveRecordSurvey::Node::Answer::Text, :text_spec => true do
 							:node => @q1_a2,
 						)
 						instance.save
-puts instance.errors.inspect
+
 						expect(instance.valid?).to be(true)
 					end
 				end
@@ -223,7 +223,7 @@ puts instance.errors.inspect
 							:node => @q1_a2,
 						)
 						instance.save
-puts instance.errors.inspect
+
 						expect(instance.valid?).to be(true)
 					end
 				end
