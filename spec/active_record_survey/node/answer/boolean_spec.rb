@@ -87,7 +87,7 @@ describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
 				expect(instance.valid?).to be(false)
 			end
 
-			it 'not answered in order' do
+			it 'when not answered in order' do
 				instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
 				instance.instance_nodes.build(
 					:instance => instance,

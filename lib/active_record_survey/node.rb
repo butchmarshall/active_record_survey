@@ -30,22 +30,42 @@ module ActiveRecordSurvey
 			self.has_instance_node_for_instance?(instance)
 		end
 
+		# Default behaviour is to recurse up the chain (goal is to hit a question node)
+		def validate_parent_instance_node(instance_node, child_node)
+			!self.node_maps.collect { |node_map|
+				if node_map.parent
+					node_map.parent.node.validate_parent_instance_node(instance_node, self)
+				# Hit top node
+				else
+					true
+				end
+			}.include?(false)
+		end
+
 		# Run all validations applied to this node
 		def validate_instance_node(instance_node)
 			# Basically this cache is messed up? Why? TODO.
 			# Reloading in the spec seems to fix this... but... this could be a booby trap for others
 			#self.node_validations(true)
 
-			!self.node_validations.collect { |node_validation|
+			# Check the validations on this node against the instance_node
+			validations_passed = !self.node_validations.collect { |node_validation|
 				node_validation.validate_instance_node(instance_node, self)
-			}.include?(false) &&  !self.node_maps.collect { |node_map|
+			}.include?(false)
+
+			# More complex....
+			# Recureses to the parent node to check
+			# This is to validate Node::Question since they don't have instance_nodes directly to validate them
+			parent_validations_passed = !self.node_maps.collect { |node_map|
 				if node_map.parent
-					node_map.parent.node.validate_instance_node(instance_node)
+					node_map.parent.node.validate_parent_instance_node(instance_node, self)
 				# Hit top node
 				else
 					true
 				end
 			}.include?(false)
+
+			validations_passed && parent_validations_passed
 		end
 
 		# Whether there is a valid answer path from this node to the root node for the instance

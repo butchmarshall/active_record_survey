@@ -20,7 +20,11 @@ module ActiveRecordSurvey
 				}
 			}.flatten.select { |i| i }.count
 
-			total_answered >= self.value.to_i
+			is_valid = (total_answered >= self.value.to_i)
+
+			instance_node.errors[:base] << { :nodes => { question_node.id => ["MINIMUM_ANSWER"] } } if !is_valid
+
+			is_valid
 		end
 	end
 end

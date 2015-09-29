@@ -9,7 +9,7 @@ module ActiveRecordSurvey
 		validate do |instance_node|
 			# This instance_node has no valid path to the root node
 			if !self.node.instance_node_path_to_root?(self)
-				instance_node.errors[:base] << "NO_PATH"
+				instance_node.errors[:base] << "INVALID_PATH"
 			end
 
 			parent_nodes = self.node.node_maps.collect { |j| j.parent }

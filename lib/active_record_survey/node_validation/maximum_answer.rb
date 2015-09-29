@@ -5,7 +5,7 @@ module ActiveRecordSurvey
 		def validate_instance_node(instance_node, question_node = nil)
 			# Only makes sense for questions to have maximum answers
 			if !question_node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
-				return false 
+				return false
 			end
 
 			instance = instance_node.instance
@@ -20,7 +20,11 @@ module ActiveRecordSurvey
 				}
 			}.flatten.select { |i| i }.count
 
-			total_answered <= self.value.to_i
+			is_valid = (total_answered <= self.value.to_i)
+
+			instance_node.errors[:base] << { :nodes => { question_node.id => ["MAXIMUM_ANSWER"] } } if !is_valid
+
+			is_valid
 		end
 	end
 end
