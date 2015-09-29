@@ -3,10 +3,7 @@ module ActiveRecordSurvey
 	class NodeValidation::MaximumAnswer < NodeValidation
 		# Validate the instance_node to ensure a maximum number of answers are made
 		def validate_instance_node(instance_node, question_node = nil)
-			#puts "-------------------------------------------"
-			#puts "runnin min answer validation"
-			
-			# Only makes sense for questions to have minimum answers
+			# Only makes sense for questions to have maximum answers
 			if !question_node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
 				return false 
 			end

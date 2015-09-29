@@ -32,12 +32,13 @@ module ActiveRecordSurvey
 
 		# Run all validations applied to this node
 		def validate_instance_node(instance_node)
-			# UGH - so bsaically this validation doesn't know about the non-saved validation..
-			#puts "Valdating #{self.id} - #{self.text} - total validations are - #{self.node_validations(true).length}"
+			# Basically this cache is messed up? Why? TODO.
+			# Reloading in the spec seems to fix this... but... this could be a booby trap for others
+			#self.node_validations(true)
+
 			!self.node_validations.collect { |node_validation|
 				node_validation.validate_instance_node(instance_node, self)
-			}.include?(false) &&
-			!self.node_maps.collect { |node_map|
+			}.include?(false) &&  !self.node_maps.collect { |node_map|
 				if node_map.parent
 					node_map.parent.node.validate_instance_node(instance_node)
 				# Hit top node

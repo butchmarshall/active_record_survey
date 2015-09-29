@@ -8,9 +8,10 @@ module ActiveRecordSurvey
 		def validate_instance_node(instance_node)
 			true
 		end
-		
+
+		# By default everything is valid! WOOO!
 		def validate_node(instance_node, node)
-			#code
+			true
 		end
 	end
 end

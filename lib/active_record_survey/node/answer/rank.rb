@@ -11,6 +11,14 @@ module ActiveRecordSurvey
 			instance_node.value.to_i <= self.max_rank
 		end
 
+		# Rank answers are considered answered if they have a value of greater than "0"
+		def is_answered_for_instance?(instance)
+			if instance_node = self.instance_node_for_instance(instance)
+				# Answered if > 0
+				instance_node.value.to_i > 0
+			end
+		end
+
 		protected
 
 		# Calculate the number of Rank nodes above this one

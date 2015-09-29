@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Node::Answer::Boolean do
+describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
 	describe 'a boolean survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
@@ -100,134 +100,142 @@ describe ActiveRecordSurvey::Node::Answer::Boolean do
 			end
 		end
 
-		before(:all) do
-			@q1.node_validations << ActiveRecordSurvey::NodeValidation::MinimumAnswer.new(
-				:node => @q1,
-				:value => 1 # min 1 of the 3 answers must be "answered"
-			)
-			@q1.node_validations << ActiveRecordSurvey::NodeValidation::MaximumAnswer.new(
-				:node => @q1,
-				:value => 3 # max 2 of the 3 answers must be "answered"
-			)
-		end
+		describe ActiveRecordSurvey::NodeValidation do
+			before(:all) do
+				@q1.node_validations.build(
+					:type => 'ActiveRecordSurvey::NodeValidation::MinimumAnswer',
+					:node => @q1,
+					:value => 1 # min 1 of the 3 answers must be "answered"
+				)
+				@q1.node_validations.build(
+					:type => 'ActiveRecordSurvey::NodeValidation::MaximumAnswer',
+					:node => @q1,
+					:value => 3 # max 2 of the 3 answers must be "answered"
+				)
+				@q1.save
 
-		describe ActiveRecordSurvey::NodeValidation::MinimumAnswer do
-			describe 'valid when' do
-				it 'has a value greater than the minimum' do
-					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a1,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a2,
-						:value => 0,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a3,
-						:value => 1,
-					)
-					instance.save
-	
-					expect(instance.valid?).to be(true)
+				# Weird caching is happening
+				@q1_a1.reload
+			end
+
+			describe ActiveRecordSurvey::NodeValidation::MinimumAnswer do
+				describe 'valid when' do
+					it 'has a value greater than the minimum' do
+						instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a1,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a2,
+							:value => 0,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a3,
+							:value => 1,
+						)
+						instance.save
+
+						expect(instance.valid?).to be(true)
+					end
+				end
+
+				describe 'invalid when' do
+					it 'has a value less than the minimum' do
+						@q1.node_validations(true)
+						instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a1,
+							:value => 0,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a2,
+							:value => 0,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a3,
+							:value => 0,
+						)
+						instance.save
+
+						expect(instance.valid?).to be(false)
+					end
 				end
 			end
 
-			describe 'invalid when' do
-				it 'has a value less than the minimum' do
-					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a1,
-						:value => 0,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a2,
-						:value => 0,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a3,
-						:value => 0,
-					)
-					instance.save
-	
-					expect(instance.valid?).to be(false)
+			describe ActiveRecordSurvey::NodeValidation::MaximumAnswer do
+				describe 'valid when' do
+					it 'has a value less than the maximum' do
+						instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a1,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a2,
+							:value => 0,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a3,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a4,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a5,
+							:value => 0,
+						)
+						instance.save
+
+						expect(instance.valid?).to be(true)
+					end
 				end
-			end
-		end
 
+				describe 'invalid when' do
+					it 'has a value greater than the maximum' do
+						instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a1,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a2,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a3,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a4,
+							:value => 1,
+						)
+						instance.instance_nodes.build(
+							:instance => instance,
+							:node => @q1_a5,
+							:value => 1,
+						)
+						instance.save
 
-		describe ActiveRecordSurvey::NodeValidation::MaximumAnswer do
-			describe 'valid when' do
-				it 'has a value less than the maximum' do
-					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a1,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a2,
-						:value => 0,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a3,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a4,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a5,
-						:value => 0,
-					)
-					instance.save
-	
-					expect(instance.valid?).to be(true)
-				end
-			end
-
-			describe 'invalid when' do
-				it 'has a value greater than the maximum' do
-					instance = ActiveRecordSurvey::Instance.new(:survey => @survey)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a1,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a2,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a3,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a4,
-						:value => 1,
-					)
-					instance.instance_nodes.build(
-						:instance => instance,
-						:node => @q1_a5,
-						:value => 1,
-					)
-					instance.save
-	
-					expect(instance.valid?).to be(false)
+						expect(instance.valid?).to be(false)
+					end
 				end
 			end
 		end
