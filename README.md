@@ -68,7 +68,7 @@ survey.save
 
 The will build a survey with the following node structure.
 
-![alt tag](https://raw.github.com/butchmarshall/active_record_survey/bin/Example_1.png)
+![alt tag](https://raw.githubusercontent.com/butchmarshall/active_record_survey/master/bin/Example_1.png)
 
 ## Development
 
