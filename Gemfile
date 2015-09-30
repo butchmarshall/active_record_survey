@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gem 'rake'
 
 group :development, :test do
-	activerecord_version = ENV['HAS_DYNAMIC_COLUMNS_ACTIVERECORD_VERSION']
+	activerecord_version = ENV['ACTIVE_RECORD_SURVEY_ACTIVERECORD_VERSION']
 
 	if ENV['RAILS_VERSION'] == 'edge' || activerecord_version == "edge"
 		gem 'arel', :github => 'rails/arel'

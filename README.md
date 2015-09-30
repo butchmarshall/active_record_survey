@@ -25,6 +25,12 @@ Or install it yourself as:
 
     $ gem install active_record_survey
 
+## Installation
+
+```ruby
+rails generate active_record_survey:active_record
+```
+
 ## Usage
 
 See the spec file for more detailed usage.

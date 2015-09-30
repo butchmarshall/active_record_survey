@@ -17,23 +17,23 @@ function run {
 	fi
 
 	echo 'Running bundle exec rspec spec against activesupport / activerecord 3.2.17'
-	HAS_DYNAMIC_COLUMNS_ACTIVERECORD_VERSION=3.2.17 bundle update activerecord
+	ACTIVE_RECORD_SURVEY_ACTIVERECORD_VERSION=3.2.17 bundle update activerecord
 	bundle exec rspec spec
 
 	echo 'Running bundle exec rspec spec against activesupport / activerecord 4.2.0'
-	HAS_DYNAMIC_COLUMNS_ACTIVERECORD_VERSION=4.2.0 bundle update activerecord
+	ACTIVE_RECORD_SURVEY_ACTIVERECORD_VERSION=4.2.0 bundle update activerecord
 	bundle exec rspec spec
 
 	echo 'Running bundle exec rspec spec against activesupport / activerecord edge'
-	HAS_DYNAMIC_COLUMNS_ACTIVERECORD_VERSION="edge" bundle update activerecord
+	ACTIVE_RECORD_SURVEY_ACTIVERECORD_VERSION="edge" bundle update activerecord
 	bundle exec rspec spec
 }
 
-rvm use ruby-2.1.1@has_dynamic_columns --create
+rvm use ruby-2.1.1@active_record_survey --create
 run
 
-rvm use ruby-2.0.0@has_dynamic_columns --create
+rvm use ruby-2.0.0@active_record_survey --create
 run
 
-rvm use ruby-1.9.3@has_dynamic_columns --create
+rvm use ruby-1.9.3@active_record_survey --create
 run

@@ -1,5 +1,5 @@
-require "generators/has_dynamic_columns/has_dynamic_columns_generator"
-require "generators/has_dynamic_columns/next_migration_version"
+require "generators/active_record_survey/active_record_survey_generator"
+require "generators/active_record_survey/next_migration_version"
 require "rails/generators/migration"
 require "rails/generators/active_record"
 
@@ -12,7 +12,7 @@ module HasDynamicColumns
 		source_paths << File.join(File.dirname(__FILE__), "templates")
 
 		def create_migration_file
-			migration_template "migration.rb", "db/migrate/add_has_dynamic_columns.rb"
+			migration_template "migration.rb", "db/migrate/add_active_record_survey.rb"
 		end
 
 		def self.next_migration_number(dirname)
