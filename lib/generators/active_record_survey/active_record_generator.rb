@@ -12,7 +12,7 @@ module ActiveRecordSurvey
 		source_paths << File.join(File.dirname(__FILE__), "templates")
 
 		def create_migration_file
-			migration_template "migration.rb", "db/migrate/add_active_record_survey.rb"
+			migration_template "migration_0.1.0.rb", "db/migrate/add_active_record_survey.rb"
 		end
 
 		def self.next_migration_number(dirname)
