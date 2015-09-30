@@ -4,8 +4,8 @@ require "rails/generators/migration"
 require "rails/generators/active_record"
 
 # Extend the HasDynamicColumnsGenerator so that it creates an AR migration
-module HasDynamicColumns
-	class ActiveRecordGenerator < ::HasDynamicColumnsGenerator
+module ActiveRecordSurvey
+	class ActiveRecordGenerator < ::ActiveRecordSurveyGenerator
 		include Rails::Generators::Migration
 		extend NextMigrationVersion
 
