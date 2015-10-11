@@ -2,14 +2,26 @@ module ActiveRecordSurvey
 	class Survey < ::ActiveRecord::Base
 		self.table_name = "active_record_surveys"
 		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_id
-		has_many :nodes, :through => :node_maps
+		has_many :nodes, -> { distinct }, :through => :node_maps
+
+		def questions
+			self.node_maps.includes(:node).select { |i|
+				i.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+			}.collect { |i|
+				i.node
+			}.uniq
+		end
 
 		def root_node
 			self.node_maps.includes(:node).select { |i| i.depth === 0 }.first
 		end
 
 		def as_map
-			self.root_node.as_map(self.node_maps.includes(:node))
+			list = self.node_maps
+
+			list.select { |i| !i.parent }.collect { |i|
+				i.as_map(list)
+			}
 		end
 
 		# Build a question with answers for this survey

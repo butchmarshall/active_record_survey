@@ -29,7 +29,31 @@ require "generators/active_record_survey/templates/migration_0.1.0"
 
 ActiveRecord::Schema.define do
 	AddActiveRecordSurvey.up
+
+	# Make it easier when you can put text on things
+	add_column :active_record_survey_nodes, :text, :string
 end
+
+module ActiveRecordSurveyNodeMap
+	def self.extended(base)
+		base.instance_eval do
+			include InstanceMethods
+			alias_method_chain :as_map, :text
+		end
+	end
+
+	module InstanceMethods
+		def as_map_with_text(node_maps = nil)
+			result = {
+				"text" => self.node.text
+ 			}
+			result = result.merge(as_map_without_text(node_maps))
+
+			result
+		end
+	end
+end
+ActiveRecordSurvey::NodeMap.send(:extend, ActiveRecordSurveyNodeMap)
 
 RSpec.configure do |config|
 	config.include FactoryGirl::Syntax::Methods

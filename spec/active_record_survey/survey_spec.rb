@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Survey do
+describe ActiveRecordSurvey::Survey, :survey_spec => true do
 	describe 'a survey' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
@@ -37,6 +37,12 @@ describe ActiveRecordSurvey::Survey do
 			q4_nodes = @survey.build_question(@q4, [@q4_a1, @q4_a2], q1_nodes[3])
 
 			@survey.save
+		end
+
+		describe '#questions' do
+			it 'should return all the questions' do
+				expect(@survey.questions.length).to be (4)
+			end
 		end
 
 		describe ActiveRecordSurvey::Instance do

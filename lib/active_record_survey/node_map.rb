@@ -4,9 +4,21 @@ module ActiveRecordSurvey
 		belongs_to :node, :foreign_key => :active_record_survey_node_id
 		belongs_to :survey, :class_name => "ActiveRecordSurvey::Survey", :foreign_key => :active_record_survey_id
 		acts_as_nested_set :scope => [:active_record_survey_id]
-		
+
+		validates_presence_of :survey
+
 		after_initialize do |i|
-			i.survey.node_maps << self if i.new_record?
+			# Required for all functions to work without creating
+			i.survey.node_maps << self if i.new_record? && i.survey
+		end
+
+		# Recursively creates a copy of this entire node_map
+		def recursive_clone
+			node_map = self.node.node_maps.build(:survey => self.survey, :node => self.node)
+			self.children.each { |child_node|
+				node_map.children << child_node.recursive_clone
+			}
+			node_map
 		end
 
 		def as_map(node_maps = nil)
@@ -15,8 +27,9 @@ module ActiveRecordSurvey
 			}
 
 			{
+				:id => self.id,
+				:node_id => self.node.id,
 				:type => self.node.class.to_s,
-				:text => "#{self.node.text}",
 				:children => children.collect { |i|
 					i.as_map(node_maps)
 				}

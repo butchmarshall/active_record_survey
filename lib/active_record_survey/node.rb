@@ -5,6 +5,22 @@ module ActiveRecordSurvey
 		has_many :node_validations, :class_name => "ActiveRecordSurvey::NodeValidation", :foreign_key => :active_record_survey_node_id, autosave: true
 		has_many :instance_nodes, :class_name => "ActiveRecordSurvey::InstanceNode", :foreign_key => :active_record_survey_node_id
 
+		# All the answer nodes that follow from this node
+		def answers
+			self.node_maps.collect { |i|
+				# Get all the children from this node
+				i.children
+			}.flatten.collect { |i|
+				# Get the nodes
+				i.node
+			}.select { |i|
+				# Only the nodes that are answers
+				i.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
+			}.uniq.collect { |i|
+				[i] + i.answers
+			}.flatten.uniq
+		end
+
 		# The instance_node recorded for the passed instance for this node
 		def instance_node_for_instance(instance)
 			instance.instance_nodes.select { |instance_node|
