@@ -12,11 +12,12 @@ describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
 			@q1_a4 = ActiveRecordSurvey::Node::Answer::Boolean.new()
 			@q1_a5 = ActiveRecordSurvey::Node::Answer::Boolean.new()
 
-			nodes = @survey.build_question(@q1, [@q1_a1])
-			nodes = @survey.build_question(@q1_a2, [], nodes[1])
-			nodes = @survey.build_question(@q1_a3, [], nodes[0])
-			nodes = @survey.build_question(@q1_a4, [], nodes[0])
-			nodes = @survey.build_question(@q1_a5, [], nodes[0])
+			@survey.build_question(@q1)
+			@q1.build_answer(@q1_a1, @survey)
+			@q1.build_answer(@q1_a2, @survey)
+			@q1.build_answer(@q1_a3, @survey)
+			@q1.build_answer(@q1_a4, @survey)
+			@q1.build_answer(@q1_a5, @survey)
 
 			@survey.save
 		end

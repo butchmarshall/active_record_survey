@@ -12,6 +12,9 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.14**
+ - build_question now only accepts a question
+ - Exceptions added
 **0.1.13**
  - Added Question#build_answer and Answer#build_link to make survey creation possible without dealing with internal nodes
 

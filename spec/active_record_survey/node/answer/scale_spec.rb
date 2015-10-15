@@ -10,9 +10,10 @@ describe ActiveRecordSurvey::Node::Answer::Scale, :scale_spec => true do
 			@q1_a2 = ActiveRecordSurvey::Node::Answer::Scale.new()
 			@q1_a3 = ActiveRecordSurvey::Node::Answer::Scale.new()
 
-			nodes = @survey.build_question(@q1, [@q1_a1])
-			nodes = @survey.build_question(@q1_a2, [], nodes[1])
-			nodes = @survey.build_question(@q1_a3, [], nodes[0])
+			@survey.build_question(@q1)
+			@q1.build_answer(@q1_a1, @survey)
+			@q1.build_answer(@q1_a2, @survey)
+			@q1.build_answer(@q1_a3, @survey)
 
 			@survey.save
 		end

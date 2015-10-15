@@ -9,8 +9,9 @@ describe ActiveRecordSurvey::Node::Answer::Text, :text_spec => true do
 			@q1_a1 = ActiveRecordSurvey::Node::Answer::Text.new()
 			@q1_a2 = ActiveRecordSurvey::Node::Answer::Text.new()
 
-			nodes = @survey.build_question(@q1, [@q1_a1])
-			nodes = @survey.build_question(@q1_a2, [], nodes[1])
+			@survey.build_question(@q1)
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
 
 			@survey.save
 		end

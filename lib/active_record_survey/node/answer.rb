@@ -25,6 +25,11 @@ module ActiveRecordSurvey
 		# Build a link from this node to another node
 		# Building a link actually needs to throw off a whole new clone of all children nodes
 		def build_link(to_node)
+			# build_link only accepts a to_node that inherits from Question
+			if !to_node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+				raise ArgumentError.new "to_node must inherit from ::ActiveRecordSurvey::Node::Question"
+			end
+
 			# Answer has already got a question - throw error
 			if self.node_maps.select { |i|
 				i.children.length === 0

@@ -24,22 +24,21 @@ module ActiveRecordSurvey
 			}
 		end
 
-		# Build a question with answers for this survey
-		def build_question(question, answers = [], parent = nil)
-			node_maps = []
-			n_question = question.node_maps.build(:node => question, :survey => self)
-			node_maps << n_question
+		# Build a question for this survey
+		def build_question(question)
+			# build_question only accepts a node that inherits from Question
+			if !question.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+				raise ArgumentError.new "Question must inherit from ::ActiveRecordSurvey::Node::Question"
+			end
 
-			answers.each { |answer|
-				n_answer = answer.node_maps.build(:node => answer, :survey => self)
-				n_question.children << n_answer
-				node_maps << n_answer
-			}
+			# Already added - shouldn't add twice
+			if question.node_maps.select { |node_map|
+				node_map.survey === self
+			}.length > 0
+				raise RuntimeError.new "This question has already been added to the survey"
+			end
 
-			# If a parent node is passed, add it
-			parent.children << n_question if !parent.nil?
-
-			node_maps
+			question.node_maps.build(:node => question, :survey => self)
 		end
 	end
 end
