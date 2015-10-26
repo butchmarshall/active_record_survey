@@ -12,7 +12,7 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
-**0.1.15*
+**0.1.15**
  - Don't consider instance_nodes marked for destruction when validating
 
 **0.1.14**
