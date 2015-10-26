@@ -16,6 +16,9 @@ module ActiveRecordSurvey
 
 			# Two instance_nodes on the same node for this instance
 			if self.instance.instance_nodes.select { |i|
+					# We don't care about paths that are going to be deleted
+					!i.marked_for_destruction?
+				}.select { |i|
 					# And the two arrays
 					# Two votes share a parent (this means a question has two answers for this instance)
 					(i.node.node_maps.collect { |j| j.parent } & parent_nodes).length > 0
