@@ -1,3 +1,3 @@
 module ActiveRecordSurvey
-	VERSION = "0.1.15"
+	VERSION = "0.1.16"
 end

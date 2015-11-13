@@ -9,6 +9,23 @@ module ActiveRecordSurvey
 			}.include?(false)
 		end
 
+		# Returns the question to the answer
+		def question
+			self.node_maps.collect { |node_map|
+				if node_map.parent && node_map.parent.node
+					# Question is not the next parent - recurse!
+					if node_map.parent.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
+						node_map.parent.node.question
+					else
+						node_map.parent.node
+					end
+				# Root already
+				else
+					nil
+				end
+			}.first
+		end
+
 		# Removes the link
 		# TODO - does this work when saved??
 		def remove_link
