@@ -7,6 +7,13 @@ module ActiveRecordSurvey
 			}.include?(false)
 		end
 
+		# Returns the survey to the question
+		def survey
+			if node_map = self.node_maps.first
+				node_map.survey
+			end
+		end
+
 		# Build an answer off this node
 		def build_answer(answer_node, survey = nil)
 			survey = survey || self.node_maps.select { |i|
