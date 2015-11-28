@@ -9,7 +9,7 @@ module ActiveRecordSurvey
 			}.include?(false)
 		end
 
-		# Returns the question to the answer
+		# Returns the question that preceeds this answer
 		def question
 			self.node_maps.collect { |node_map|
 				if node_map.parent && node_map.parent.node
@@ -24,6 +24,24 @@ module ActiveRecordSurvey
 					nil
 				end
 			}.first
+		end
+
+		# Returns the question that follows this answer
+		def next_question
+			self.node_maps.each { |answer_node_map|
+				answer_node_map.children.each { |child|
+					if !child.node.nil?
+						if child.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+							return child.node
+						elsif child.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
+							return child.node.next_question 
+						end
+					else
+						return nil
+					end
+				}
+			}
+			return nil
 		end
 
 		# Removes the link
@@ -51,7 +69,7 @@ module ActiveRecordSurvey
 			if self.node_maps.select { |i|
 				i.children.length === 0
 			}.length === 0
-				raise RuntimeError.new "This answer has already been linked to a question"
+				raise RuntimeError.new "This answer has already been linked"
 			end
 
 			# Attempt to find an unused to_node node_map
@@ -69,10 +87,22 @@ module ActiveRecordSurvey
 				# Find the node map from this node that has no children
 				from_with_no_children = self.node_maps.select { |i|
 					i.children.length == 0
-				}.first
+				}
 
-				# Set the child node of this node to a node
-				from_with_no_children.children << to_without_parent
+				if from_with_no_children.length > 1
+					to_node_map = to_node.node_maps.first || to_node.node_maps.build(:node => to_node, :survey => self.node_maps.first.survey)
+				end
+
+				from_with_no_children.each_with_index { |from_with_no_children, index|
+					# Use up the node that hasn't been used yet
+					if index === 0
+						from_with_no_children.children << to_without_parent
+					# We need to clone destinations for each of the subsequent
+					else
+						from_with_no_children.children << to_node_map.recursive_clone
+					end
+				}
+
 			end
 		end
 

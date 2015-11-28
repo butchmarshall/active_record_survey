@@ -52,8 +52,10 @@ See the spec file for more detailed usage.
 ```ruby
 
 # New method for building surveys
+@survey = ActiveRecordSurvey::Survey.new()
 
 @q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1")
+@survey.build_question(@q1)
 @q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
 @q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #2")
 @q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #3")
@@ -62,18 +64,21 @@ See the spec file for more detailed usage.
 @q1.build_answer(@q1_a3, @survey)
 
 @q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2")
+@survey.build_question(@q2)
 @q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #1")
 @q2_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #2")
 @q2.build_answer(@q2_a1, @survey)
 @q2.build_answer(@q2_a2, @survey)
 
 @q3 = ActiveRecordSurvey::Node::Question.new(:text => "Question #3")
+@survey.build_question(@q3)
 @q3_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #1")
 @q3_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #2")
 @q3.build_answer(@q3_a1, @survey)
 @q3.build_answer(@q3_a2, @survey)
 
 @q4 = ActiveRecordSurvey::Node::Question.new(:text => "Question #4")
+@survey.build_question(@q4)
 @q4_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #1")
 @q4_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #2")
 @q4.build_answer(@q4_a1, @survey)
@@ -92,40 +97,8 @@ See the spec file for more detailed usage.
 @q3_a1.build_link(@q4)
 @q3_a2.build_link(@q4)
 
-# Depricated method for building surveys
-
-q1 = ActiveRecordSurvey::Node::Question.new() # Q1
-q1_a1 = ActiveRecordSurvey::Node::Answer.new() # Q1 A1
-q1_a2 = ActiveRecordSurvey::Node::Answer.new() # Q1 A2
-q1_a3 = ActiveRecordSurvey::Node::Answer.new() # Q1 A3
-
-q2 = ActiveRecordSurvey::Node::Question.new() # Q2
-q2_a1 = ActiveRecordSurvey::Node::Answer.new() # Q2 A1
-q2_a2 = ActiveRecordSurvey::Node::Answer.new() # Q2 A2
-
-q3 = ActiveRecordSurvey::Node::Question.new() # Q3
-q3_a1 = ActiveRecordSurvey::Node::Answer.new() # Q3 A1
-q3_a2 = ActiveRecordSurvey::Node::Answer.new() # Q3 A2
-
-q4 = ActiveRecordSurvey::Node::Question.new() # Q4
-q4_a1 = ActiveRecordSurvey::Node::Answer.new() # Q4 A1
-q4_a2 = ActiveRecordSurvey::Node::Answer.new() # Q4 A2
-
-q1_nodes = survey.build_question(q1, [q1_a1, q1_a2, q1_a3])
-q2_nodes = survey.build_question(q2, [q2_a1, q2_a2], q1_nodes[1])
-q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q2_nodes[1])
-
-q3_nodes = survey.build_question(q3, [q3_a1, q3_a2], q2_nodes[2])
-q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[1])
-q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[2])
-
-q3_nodes = survey.build_question(q3, [q3_a1, q3_a2], q1_nodes[2])
-q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[1])
-q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q3_nodes[2])
-
-q4_nodes = survey.build_question(q4, [q4_a1, q4_a2], q1_nodes[3])
-
-survey.save
+# Commit everything to the database!
+@survey.save
 ```
 
 The will build a survey with the following node structure.

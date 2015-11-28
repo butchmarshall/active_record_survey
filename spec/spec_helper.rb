@@ -4,6 +4,8 @@ require 'factory_girl'
 
 require 'active_record_survey'
 
+require_relative '../spec/factories/active_record_survey/survey'
+
 # Trigger AR to initialize
 ActiveRecord::Base
 
