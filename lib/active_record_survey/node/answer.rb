@@ -1,5 +1,18 @@
 module ActiveRecordSurvey
 	class Node::Answer < Node
+		attr_accessor :ancestor_marked_for_destruction
+		protected :ancestor_marked_for_destruction
+
+		before_save do |node|
+			# ------------------------ WARNING ------------------------
+			# This code is to support #remove_link which uses mark_for_destruction
+			# This code is necessary to clean everything up.
+			# Calling save on this answer won't automatically go to its next_question -> node_maps and clean everything up
+			(@ancestor_marked_for_destruction || []).each { |i|
+				i.destroy
+			}
+		end
+
 		# Answer nodes are valid if their questions are valid!
 		# Validate this node against an instance
 		def validate_node(instance)
@@ -47,8 +60,19 @@ module ActiveRecordSurvey
 		# Removes the link
 		# TODO - does this work when saved??
 		def remove_link
-			self.node_maps.each { |answer_node_map|
-				answer_node_map.children.each { |child|
+			@ancestor_marked_for_destruction ||= []
+
+			self.node_maps.each_with_index { |answer_node_map, answer_node_map_index|
+				answer_node_map.children.each_with_index { |child, child_index|
+					# child.node == question this answer is pointing to
+					child.node.node_maps.each_with_index { |i,ii|
+						# Cleans up all the excess node_maps from the old linkage
+						if ii > 0
+							i.mark_for_destruction 
+							@ancestor_marked_for_destruction << i if ii > 0
+						end
+					}
+
 					# Should not know about parent
 					child.parent = nil
 				}
