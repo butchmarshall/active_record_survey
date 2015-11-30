@@ -62,22 +62,33 @@ module ActiveRecordSurvey
 		def remove_link
 			@ancestor_marked_for_destruction ||= []
 
+			# Go through the answers node_maps
 			self.node_maps.each_with_index { |answer_node_map, answer_node_map_index|
-				answer_node_map.children.each_with_index { |child, child_index|
-					# child.node == question this answer is pointing to
-					child.node.node_maps.each_with_index { |i,ii|
+				# Go through all the node_maps this answers node map is linked to
+				# a.k.a all the questions node maps
+				answer_node_map.children = answer_node_map.children.select { |child|
+					node_map_removed = false
+					# TODO - clean up this logic to be easier to follow
+					# The question can be linked to from more than one answer!
+					# If this is the case, we *don'tz* want to leave one last node_map hanging out - we can destroy them all
+					linked_somewhere_else = !child.node.node_maps.select { |nm| nm.parent && nm.parent.node != self }.first.nil?
+
+					child.node.node_maps.select { |nm|
+						nm.parent && nm.parent.node == self
+					}.each_with_index { |nm,ii|
 						# Cleans up all the excess node_maps from the old linkage
-						if ii > 0
-							i.mark_for_destruction 
-							@ancestor_marked_for_destruction << i if ii > 0
+						if linked_somewhere_else || nm.parent && nm.parent.node == self && ii > 0
+							nm.mark_for_destruction 
+							@ancestor_marked_for_destruction << nm
+							node_map_removed = true
 						end
 					}
 
 					# Should not know about parent
-					child.parent = nil
+					child.parent = nil if node_map_removed
+
+					!node_map_removed
 				}
-				# Should not know about children
-				answer_node_map.children = []
 			}
 		end
 

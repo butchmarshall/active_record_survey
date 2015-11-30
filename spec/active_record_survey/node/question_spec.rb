@@ -57,7 +57,7 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 			end
 		end
 
-		describe '#build_answer', :focus => true do
+		describe '#build_answer' do
 			it 'should have the right number of node maps' do
 				@survey = ActiveRecordSurvey::Survey.new()
 
