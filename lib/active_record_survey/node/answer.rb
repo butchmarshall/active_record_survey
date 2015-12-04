@@ -138,7 +138,15 @@ module ActiveRecordSurvey
 					end
 				}
 
+				# TODO - check to make sure there is no path to itself
 			end
+
+			self.node_maps.each { |node_map|
+				# There is a path from Q -> A that is a loop
+				if node_map.has_infinite_loop?
+					raise RuntimeError.new "Infinite loop detected"
+				end
+			}
 		end
 
 		# By default - answers build off the original question node

@@ -46,5 +46,16 @@ module ActiveRecordSurvey
 				i.children_until_node_not_ancestor_of(klass)
 			}
 		end
+
+		# Check to see whether there is an infinite loop from this node_map
+		def has_infinite_loop?(path = [])
+			self.children.each { |i|
+				# Detect infinite loop
+				if path.include?(self.node) || i.has_infinite_loop?(path.clone.push(self.node))
+					return true
+				end
+			}
+			false
+		end
 	end
 end

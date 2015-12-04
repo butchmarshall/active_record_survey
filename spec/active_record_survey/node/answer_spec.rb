@@ -7,9 +7,33 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 			@survey.save
 		end
 
-		describe '#remove_link', :focus => true do
+		describe '#build_link', :focus => true do
+			it 'should throw error when build_link creates an infinite loop' do
+				survey = ActiveRecordSurvey::Survey.new()
+
+				q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1")
+				survey.build_question(q1)
+				q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
+				q1.build_answer(q1_a1)
+
+				q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2")
+				survey.build_question(q2)
+				q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A1")
+				q2.build_answer(q2_a1)
+
+				q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3")
+				survey.build_question(q3)
+				q3_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 A1")
+				q3.build_answer(q3_a1)
+
+				q1_a1.build_link(q2)
+				q2_a1.build_link(q3)
+				expect{q3_a1.build_link(q1)}.to raise_error(RuntimeError) # This should throw exception
+			end
+		end
+
+		describe '#remove_link' do
 			it 'should only unlink the specified answer' do
-				
 				q4 = nil
 				q4_a1 = nil
 				q4_a2 = nil
@@ -22,7 +46,7 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 					q5 = i if i.text == "Q5 Boolean"
 					q6 = i if i.text == "Q6"
 				}
-				
+
 				q4.answers.each { |i|
 					q4_a1 = i if i.text == "Q4 A1"
 					q4_a2 = i if i.text == "Q4 A2"

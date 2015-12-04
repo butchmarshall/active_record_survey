@@ -13,6 +13,9 @@ Release Notes
 ============
 
 **0.1.20**
+ - answer#build_link now detects and throws an error when a infinite loop is added
+
+**0.1.20**
  - answer#remove_link wasn't correct.  Fixed and added unit tests
 
 **0.1.15**
