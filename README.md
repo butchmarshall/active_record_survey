@@ -60,6 +60,12 @@ rails generate active_record_survey:active_record
 
 See the spec file for more detailed usage.
 
+***Please*** be aware that the default gem does not prescribe how your `ActiveRecordSurvey::Node` should store text - that's up for you to implement.
+
+See the spec for a sample implementation or [ActiveRecordSurveyApi](https://github.com/butchmarshall/active_record_survey_api) for a fully translatable implementation using the [Globalize](https://github.com/globalize/globalize) gem.
+
+The usage below with `:text => ""` will not actually work unless you implement `:text`
+
 ### Build a basic survey
 ```ruby
 
