@@ -18,7 +18,7 @@ Release Notes
 **0.1.22**
  - answer#remove_link cleaned up so it can be understood
 
-**0.1.20**
+**0.1.21**
  - answer#build_link now detects and throws an error when a infinite loop is added
 
 **0.1.20**
