@@ -1,18 +1,5 @@
 module ActiveRecordSurvey
 	class Node::Answer < Node
-		attr_accessor :ancestor_marked_for_destruction
-		protected :ancestor_marked_for_destruction
-
-		before_save do |node|
-			# ------------------------ WARNING ------------------------
-			# This code is to support #remove_link which uses mark_for_destruction
-			# This code is necessary to clean everything up.
-			# Calling save on this answer won't automatically go to its next_question -> node_maps and clean everything up
-			(@ancestor_marked_for_destruction || []).each { |i|
-				i.destroy
-			}
-		end
-
 		# Answer nodes are valid if their questions are valid!
 		# Validate this node against an instance
 		def validate_node(instance)
@@ -60,34 +47,18 @@ module ActiveRecordSurvey
 		# Removes the link
 		# TODO - does this work when saved??
 		def remove_link
-			@ancestor_marked_for_destruction ||= []
+			# not linked to a question - nothing to remove!
+			return true if (question = self.next_question).nil?
 
-			# Go through the answers node_maps
-			self.node_maps.each_with_index { |answer_node_map, answer_node_map_index|
-				# Go through all the node_maps this answers node map is linked to
-				# a.k.a all the questions node maps
-				answer_node_map.children = answer_node_map.children.select { |child|
-					node_map_removed = false
-					# TODO - clean up this logic to be easier to follow
-					# The question can be linked to from more than one answer!
-					# If this is the case, we *don'tz* want to leave one last node_map hanging out - we can destroy them all
-					linked_somewhere_else = !child.node.node_maps.select { |nm| nm.parent && nm.parent.node != self }.first.nil?
-
-					child.node.node_maps.select { |nm|
-						nm.parent && nm.parent.node == self
-					}.each_with_index { |nm,ii|
-						# Cleans up all the excess node_maps from the old linkage
-						if linked_somewhere_else || nm.parent && nm.parent.node == self && ii > 0
-							nm.mark_for_destruction 
-							@ancestor_marked_for_destruction << nm
-							node_map_removed = true
-						end
-					}
-
-					# Should not know about parent
-					child.parent = nil if node_map_removed
-
-					!node_map_removed
+			self.node_maps.each_with_index { |answer_nm, answer_nm_i|
+				answer_nm.children = answer_nm.children.select { |question_nm|
+					# This node_map links to the question
+					if question_nm.node === question
+						question_nm.parent = nil
+						false
+					else
+						true
+					end
 				}
 			}
 		end
@@ -104,7 +75,7 @@ module ActiveRecordSurvey
 			if self.node_maps.select { |i|
 				i.children.length === 0
 			}.length === 0
-				raise RuntimeError.new "This answer has already been linked"
+				raise RuntimeError.new "This answer has already been linked" 
 			end
 
 			# Attempt to find an unused to_node node_map

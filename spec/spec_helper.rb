@@ -6,6 +6,8 @@ require 'active_record_survey'
 
 require_relative '../spec/factories/active_record_survey/survey'
 
+require 'database_cleaner'
+
 # Trigger AR to initialize
 ActiveRecord::Base
 
@@ -61,6 +63,12 @@ RSpec.configure do |config|
 	config.include FactoryGirl::Syntax::Methods
 	config.after(:each) do
 	end
+
+	config.before(:suite) do
+		DatabaseCleaner.strategy = :transaction
+		DatabaseCleaner.clean_with(:truncation)
+	end
+
 	config.expect_with :rspec do |c|
 		c.syntax = :expect
 	end

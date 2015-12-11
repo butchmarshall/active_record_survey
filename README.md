@@ -12,6 +12,9 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.22**
+ - answer#remove_link cleaned up so it can be understood
+
 **0.1.20**
  - answer#build_link now detects and throws an error when a infinite loop is added
 
@@ -54,7 +57,7 @@ rails generate active_record_survey:active_record
 
 See the spec file for more detailed usage.
 
-**Build a basic survey**
+### Build a basic survey
 ```ruby
 
 # New method for building surveys
@@ -110,6 +113,50 @@ See the spec file for more detailed usage.
 The will build a survey with the following node structure.
 
 ![alt tag](https://raw.githubusercontent.com/butchmarshall/active_record_survey/master/bin/Example_1.png)
+
+### Answer Types
+
+A number of different answer types are implemented by default.
+
+ - [Default (a.k.a radio)](#answer_default)
+ - [Boolean (a.k.a. checkbox)](#answer_checkbox)
+ - [Rank](#answer_rank)
+ - [Scale](#answer_scale)
+ - [Text](#answer_text)
+
+#### Default <a id="answer_default"></a>
+
+```ruby
+ActiveRecordSurvey::Node::Answer
+```
+
+#### Boolean <a id="answer_checkbox"></a>
+
+```ruby
+ActiveRecordSurvey::Node::Answer::Boolean
+```
+
+#### Rank <a id="answer_rank"></a>
+
+```ruby
+ActiveRecordSurvey::Node::Answer::Rank
+```
+
+#### Scale <a id="answer_scale"></a>
+
+```ruby
+ActiveRecordSurvey::Node::Answer::Scale
+```
+
+#### Text <a id="answer_text"></a>
+
+```ruby
+ActiveRecordSurvey::Node::Answer::Text
+```
+
+### Answer Validation
+
+
 
 ## Development
 

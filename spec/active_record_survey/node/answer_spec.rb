@@ -7,7 +7,7 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 			@survey.save
 		end
 
-		describe '#build_link', :focus => true do
+		describe '#build_link' do
 			it 'should throw error when build_link creates an infinite loop' do
 				survey = ActiveRecordSurvey::Survey.new()
 
@@ -29,6 +29,39 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 				q1_a1.build_link(q2)
 				q2_a1.build_link(q3)
 				expect{q3_a1.build_link(q1)}.to raise_error(RuntimeError) # This should throw exception
+			end
+
+			it 'should be allowed before saving after calling #remove_link' do
+				survey = ActiveRecordSurvey::Survey.new()
+
+				q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1")
+				survey.build_question(q1)
+				q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
+				q1.build_answer(q1_a1)
+
+				q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2")
+				survey.build_question(q2)
+				q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3")
+				survey.build_question(q3)
+
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q2", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}, {"text"=>"Q3", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+
+				q1_a1.build_link(q2)
+				expect(q1_a1.next_question).to eq(q2)
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q2", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q3", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+
+				q1_a1.remove_link
+				expect(q1_a1.next_question).to eq(nil)
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q2", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}, {"text"=>"Q3", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+
+				q1_a1.build_link(q3)
+				expect(q1_a1.next_question).to eq(q3)
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+
+				survey.save
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>190, :node_id=>58, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>191, :node_id=>59, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>192, :node_id=>60, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>193, :node_id=>61, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+				survey.reload
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>190, :node_id=>58, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>191, :node_id=>59, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>192, :node_id=>60, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>193, :node_id=>61, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
 			end
 		end
 
