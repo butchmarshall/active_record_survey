@@ -1,6 +1,6 @@
 module ActiveRecordSurvey
-	# Rank in relation to parent/children of ActiveRecordSurvey::Node::Answer::Rank
-	class Node::Answer::Rank < Node::Answer
+	# Rank in relation to parent/children of ActiveRecordSurvey::Node::Answer::Chain::Rank
+	class Node::Answer::Chain::Rank < Node::Answer::Chain
 		# Accept integer or empty values
 		# Must be within range of the number of ranking nodes
 		def validate_instance_node(instance_node)
@@ -17,25 +17,6 @@ module ActiveRecordSurvey
 				# Answered if > 0
 				instance_node.value.to_i > 0
 			end
-		end
-
-		# Rank nodes are different - they must find the final rank node added and add to it
-		def build_answer(question_node, survey)
-			# No node_maps exist yet from this question
-			if question_node.node_maps.length === 0
-				# Build our first node-map
-				question_node.node_maps.build(:node => question_node, :survey => survey)
-			end
-
-			last_in_chain = question_node.answers.last || question_node
-
-			# Each instance of this question needs the answer hung from it
-			last_in_chain.node_maps.each { |node_map|
-				answer_node_map = self.node_maps.build(:node => self, :survey => survey)
-				node_map.children << answer_node_map
-			}
-
-			true
 		end
 
 		protected

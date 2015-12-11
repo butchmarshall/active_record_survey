@@ -33,8 +33,8 @@ module FactoryGirlSurveyHelpers
 
 		q5 = ActiveRecordSurvey::Node::Question.new(:text => "Q5 Boolean")
 		survey.build_question(q5)
-		q5_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 A1")
-		q5_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 A2")
+		q5_a1 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new(:text => "Q5 A1")
+		q5_a2 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new(:text => "Q5 A2")
 		q5.build_answer(q5_a1)
 		q5.build_answer(q5_a2)
 
