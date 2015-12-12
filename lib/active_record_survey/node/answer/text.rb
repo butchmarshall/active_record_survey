@@ -1,6 +1,8 @@
 module ActiveRecordSurvey
 	# Text answers are... text answers
-	class Node::Answer::Chain::Text < Node::Answer::Chain
+	class Node::Answer::Text < Node::Answer
+		include Answer::Chained
+
 		# Text answers are considered answered if they have text entered
 		def is_answered_for_instance?(instance)
 			if instance_node = self.instance_node_for_instance(instance)

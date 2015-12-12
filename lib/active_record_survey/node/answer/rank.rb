@@ -1,6 +1,8 @@
 module ActiveRecordSurvey
-	# Rank in relation to parent/children of ActiveRecordSurvey::Node::Answer::Chain::Rank
-	class Node::Answer::Chain::Rank < Node::Answer::Chain
+	# Rank in relation to parent/children of ActiveRecordSurvey::Node::Answer::Rank
+	class Node::Answer::Rank < Node::Answer
+		include Answer::Chained
+
 		# Accept integer or empty values
 		# Must be within range of the number of ranking nodes
 		def validate_instance_node(instance_node)

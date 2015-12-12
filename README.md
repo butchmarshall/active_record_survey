@@ -12,6 +12,9 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.24**
+ - Refactored class `ActiveRecordSurvey::Node::Answer::Chain` to module `ActiveRecordSurvey::Node::Answer::Chained` - this functionality makes way more sense implemented as a module.
+
 **0.1.23**
  - Added `ActiveRecordSurvey::Node::Answer::Chain` for common chainable interface for answers
 
@@ -146,7 +149,7 @@ The default answer type (think of it like a radio question) - this is currently 
 #### Boolean
 
 ```ruby
-ActiveRecordSurvey::Node::Answer::Chain::Boolean
+ActiveRecordSurvey::Node::Answer::Boolean
 ```
 
 True/False (0/1 actually... think of it like a checkbox) answer types.
@@ -155,7 +158,7 @@ True/False (0/1 actually... think of it like a checkbox) answer types.
 #### Rank
 
 ```ruby
-ActiveRecordSurvey::Node::Answer::Chain::Rank
+ActiveRecordSurvey::Node::Answer::Rank
 ```
 
 Rankable (answer value is 1..NUM_ANSWERS) to rank the answers in relation to one another.
@@ -164,7 +167,7 @@ Rankable (answer value is 1..NUM_ANSWERS) to rank the answers in relation to one
 #### Scale
 
 ```ruby
-ActiveRecordSurvey::Node::Answer::Chain::Scale
+ActiveRecordSurvey::Node::Answer::Scale
 ```
 
 Scale (answer value is a min/max on a scale of A->B) where you can specificy each answer on a scale
@@ -173,7 +176,7 @@ Scale (answer value is a min/max on a scale of A->B) where you can specificy eac
 #### Text
 
 ```ruby
-ActiveRecordSurvey::Node::Answer::Chain::Text
+ActiveRecordSurvey::Node::Answer::Text
 ```
 
 Textual answer to a question (e.g. please tell us what you thinik...)
@@ -204,7 +207,7 @@ ActiveRecordSurvey::ValidationNode::MaximumAnswer
 
 These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Question` nodes.
 
-Ensures that a maximum numer of answers have been selected.  For chained answer nodes such as `ActiveRecordSurvey::Node::Answer::Chain::Boolean`,`ActiveRecordSurvey::Node::Answer::Chain::Rank`, and `ActiveRecordSurvey::Node::Answer::Chain::Scale` it enforces a maximum amount that be answered.
+Ensures that a maximum numer of answers have been selected.  For chained answer nodes such as `ActiveRecordSurvey::Node::Answer::Boolean`,`ActiveRecordSurvey::Node::Answer::Rank`, and `ActiveRecordSurvey::Node::Answer::Scale` it enforces a maximum amount that be answered.
 
 <a id=answer_minimum_answer""></a>
 #### MinimumAnswer
@@ -215,7 +218,7 @@ ActiveRecordSurvey::ValidationNode::MinimumAnswer
 
 These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Question` nodes.
 
-Ensures that a minimum numer of answers have been selected.  For chained answer nodes such as `ActiveRecordSurvey::Node::Answer::Chain::Boolean`,`ActiveRecordSurvey::Node::Answer::Chain::Rank`, and `ActiveRecordSurvey::Node::Answer::Chain::Scale` it enforces a minimum amount that can be answered.
+Ensures that a minimum numer of answers have been selected.  For chained answer nodes such as `ActiveRecordSurvey::Node::Answer::Boolean`,`ActiveRecordSurvey::Node::Answer::Rank`, and `ActiveRecordSurvey::Node::Answer::Scale` it enforces a minimum amount that can be answered.
 
 <a id="answer_maximum_value"></a>
 #### MaximumValue
@@ -224,7 +227,7 @@ Ensures that a minimum numer of answers have been selected.  For chained answer 
 ActiveRecordSurvey::ValidationNode::MaximumValue
 ```
 
-These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes which record an scalar answer value such as  `ActiveRecordSurvey::Node::Answer::Chain::Scale`.
+These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes which record an scalar answer value such as  `ActiveRecordSurvey::Node::Answer::Scale`.
 
 Ensures that a minimum scalar value has been entered.
 
@@ -235,7 +238,7 @@ Ensures that a minimum scalar value has been entered.
 ActiveRecordSurvey::ValidationNode::MinimumValue
 ```
 
-These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes which record an scalar answer value such as  `ActiveRecordSurvey::Node::Answer::Chain::Scale`.
+These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes which record an scalar answer value such as  `ActiveRecordSurvey::Node::Answer::Scale`.
 
 Ensures that a maximum scalar value has been entered.
 
@@ -246,7 +249,7 @@ Ensures that a maximum scalar value has been entered.
 ActiveRecordSurvey::ValidationNode::MaximumLength
 ```
 
-These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes nodes which record a text value such as `ActiveRecordSurvey::Node::Answer::Chain::Text`.
+These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes nodes which record a text value such as `ActiveRecordSurvey::Node::Answer::Text`.
 
 Ensures that a maximum amount of text has been answered.
 
@@ -257,7 +260,7 @@ Ensures that a maximum amount of text has been answered.
 ActiveRecordSurvey::ValidationNode::MinimumLength
 ```
 
-These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes nodes which record a text value such as `ActiveRecordSurvey::Node::Answer::Chain::Text`.
+These nodes should only be attached to nodes which extend `ActiveRecordSurvey::Node::Answer` nodes nodes which record a text value such as `ActiveRecordSurvey::Node::Answer::Text`.
 
 Ensures that a minimum amount of text has been answered.
 

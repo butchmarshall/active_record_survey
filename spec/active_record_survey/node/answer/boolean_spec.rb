@@ -1,16 +1,16 @@
 require 'spec_helper'
 
-describe ActiveRecordSurvey::Node::Answer::Chain::Boolean, :boolean_spec => true do
+describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
 	describe 'a boolean survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
 
 			@q1 = ActiveRecordSurvey::Node::Question.new()
-			@q1_a1 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new()
-			@q1_a2 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new()
-			@q1_a3 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new()
-			@q1_a4 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new()
-			@q1_a5 = ActiveRecordSurvey::Node::Answer::Chain::Boolean.new()
+			@q1_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new()
+			@q1_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new()
+			@q1_a3 = ActiveRecordSurvey::Node::Answer::Boolean.new()
+			@q1_a4 = ActiveRecordSurvey::Node::Answer::Boolean.new()
+			@q1_a5 = ActiveRecordSurvey::Node::Answer::Boolean.new()
 
 			@survey.build_question(@q1)
 			@q1.build_answer(@q1_a1, @survey)
