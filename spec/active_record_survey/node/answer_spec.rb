@@ -31,6 +31,48 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 				expect{q3_a1.build_link(q1)}.to raise_error(RuntimeError) # This should throw exception
 			end
 
+			it 'should keep consistent number of nodes after calling #remove_link and #build_link', :focus => true do
+				survey = FactoryGirl.build(:simple_survey)
+				survey.save
+				q = ActiveRecordSurvey::Node::Question.new(:text => "Question Linkable")
+				survey.build_question(q)
+				q_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Question Linkable Answer #1")
+				q_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Question Linkable Answer #2")
+				q.build_answer(q_a1)
+				q.build_answer(q_a2)
+				survey.save
+
+				# Find Q4 Answer #2
+				q4_a2 = nil
+				survey.questions.each { |q|
+					if q.text == "Question #4"
+						q.answers.each { |a|
+							q4_a2 = a if a.text == "Q4 Answer #2"
+						}
+					end
+				}
+
+				survey.reload
+				expect(survey.node_maps.length).to eq(34)
+
+				q4_a2.build_link(q)
+				q4_a2.save
+				survey.reload
+				expect(survey.node_maps.length).to eq(49)
+
+				q4_a2.remove_link
+				q4_a2.save
+				survey.reload
+				expect(survey.node_maps.length).to eq(34)
+
+				q.reload # This is needed - won't build properly... its wierd... gotta fix this
+				q4_a2.build_link(q)
+
+				q4_a2.save
+				survey.reload
+				expect(survey.node_maps.length).to eq(49)
+			end
+
 			it 'should be allowed before saving after calling #remove_link' do
 				survey = ActiveRecordSurvey::Survey.new()
 
@@ -59,9 +101,9 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>nil, :node_id=>nil, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
 
 				survey.save
-				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>190, :node_id=>58, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>191, :node_id=>59, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>192, :node_id=>60, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>193, :node_id=>61, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>339, :node_id=>93, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>340, :node_id=>94, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>341, :node_id=>95, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>342, :node_id=>96, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
 				survey.reload
-				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>190, :node_id=>58, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>191, :node_id=>59, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>192, :node_id=>60, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>193, :node_id=>61, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+				expect(survey.as_map).to eq([{"text"=>"Q1", :id=>339, :node_id=>93, :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :id=>340, :node_id=>94, :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Q3", :id=>341, :node_id=>95, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}, {"text"=>"Q2", :id=>342, :node_id=>96, :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
 			end
 		end
 

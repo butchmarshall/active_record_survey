@@ -44,9 +44,23 @@ module ActiveRecordSurvey
 			return nil
 		end
 
+		attr_accessor :ancestor_marked_for_destruction
+		protected :ancestor_marked_for_destruction
+
+		before_save do |node|
+			# ------------------------ WARNING ------------------------
+			# This code is to support #remove_link which uses mark_for_destruction
+			# This code is necessary to clean everything up.
+			# Calling save on this answer won't automatically go to its next_question -> node_maps and clean everything up
+			(@ancestor_marked_for_destruction || []).each { |i|
+				i.destroy
+			}
+		end
+
 		# Removes the link
-		# TODO - does this work when saved??
 		def remove_link
+			@ancestor_marked_for_destruction ||= []
+
 			# not linked to a question - nothing to remove!
 			return true if (question = self.next_question).nil?
 
@@ -55,6 +69,10 @@ module ActiveRecordSurvey
 					# This node_map links to the question
 					if question_nm.node === question
 						question_nm.parent = nil
+						if answer_nm_i > 0
+							question_nm.mark_for_destruction
+							@ancestor_marked_for_destruction << question_nm
+						end
 						false
 					else
 						true
