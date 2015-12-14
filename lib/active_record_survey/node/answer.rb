@@ -110,7 +110,7 @@ module ActiveRecordSurvey
 			else
 				# Find the node map from this node that has no children
 				from_with_no_children = self.node_maps.select { |i|
-					i.children.length == 0
+					i.children.length == 0 && !i.marked_for_destruction?
 				}
 
 				if from_with_no_children.length > 1
@@ -120,6 +120,9 @@ module ActiveRecordSurvey
 				from_with_no_children.each_with_index { |from_with_no_children, index|
 					# Use up the node that hasn't been used yet
 					if index === 0
+						# this seems necessary due to parent still being nil after a build_link -> remove_link -> build_link cycle not setting parent correctly on this node.
+						# lft/right are correct though?!  makes. no. sense.
+						to_without_parent.reload if !to_without_parent.new_record?
 						from_with_no_children.children << to_without_parent
 					# We need to clone destinations for each of the subsequent
 					else
