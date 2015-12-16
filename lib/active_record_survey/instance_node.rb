@@ -12,7 +12,7 @@ module ActiveRecordSurvey
 				instance_node.errors[:base] << "INVALID_PATH"
 			end
 
-			parent_nodes = self.node.node_maps.collect { |j| j.parent }
+			parent_nodes = self.node.survey.node_maps.select { |i| i.node == self.node }.collect { |j| j.parent }
 
 			# Two instance_nodes on the same node for this instance
 			if self.instance.instance_nodes.select { |i|
@@ -21,7 +21,7 @@ module ActiveRecordSurvey
 				}.select { |i|
 					# And the two arrays
 					# Two votes share a parent (this means a question has two answers for this instance)
-					(i.node.node_maps.collect { |j| j.parent } & parent_nodes).length > 0
+					(i.node.survey.node_maps.select { |j| i.node == j.node }.collect { |j| j.parent } & parent_nodes).length > 0
 				}.length > 1
 				instance_node.errors[:base] << "DUPLICATE_PATH"
 			end

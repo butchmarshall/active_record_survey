@@ -1,35 +1,80 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Question, :question_spec => true do
+	describe "#build_answer" do
+		before(:each) do
+			@survey = ActiveRecordSurvey::Survey.new()
+			@q = ActiveRecordSurvey::Node::Question.new(:text => "Q")
+			@a1 = ActiveRecordSurvey::Node::Answer.new(:text => "A1")
+			@a2 = ActiveRecordSurvey::Node::Answer.new(:text => "A2")
+		end
+
+		describe 'when invalid' do
+			it 'should raise ArgumentError if survey not linked to question' do
+				expect{@q.build_answer(@a1)}.to raise_error(ArgumentError)
+			end
+		end
+
+		describe 'when valid' do
+			before(:each) do
+				@q.survey = @survey
+			end
+			it 'should return true if successful' do
+				expect(@q.build_answer(@a1)).to eq(true)
+			end
+			it 'should link the question to the answer' do
+				expect(@q.answers.length).to eq(0)
+				@q.build_answer(@a1)
+				expect(@q.answers.length).to eq(1)
+				expect(@q.answers.first).to eq(@a1)
+
+				expect(@survey.node_maps.length).to eq(2)
+			end
+			it 'should work for multiple answers' do
+				expect(@q.answers.length).to eq(0)
+
+				@q.build_answer(@a1)
+				expect(@q.answers.length).to eq(1)
+				expect(@q.answers.first).to eq(@a1)
+
+				@q.build_answer(@a2)
+				expect(@q.answers.length).to eq(2)
+				expect(@q.answers.last).to eq(@a2)
+
+				expect(@survey.node_maps.length).to eq(3)
+			end
+		end
+	end
+
 	describe 'a survey' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new()
 
-			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1")
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
 			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
 			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #2")
 			@q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #3")
-			@q1.build_answer(@q1_a1, @survey)
-			@q1.build_answer(@q1_a2, @survey)
-			@q1.build_answer(@q1_a3, @survey)
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+			@q1.build_answer(@q1_a3)
 
-			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2")
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
 			@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #1")
 			@q2_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #2")
-			@q2.build_answer(@q2_a1, @survey)
-			@q2.build_answer(@q2_a2, @survey)
+			@q2.build_answer(@q2_a1)
+			@q2.build_answer(@q2_a2)
 
-			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Question #3")
+			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Question #3", :survey => @survey)
 			@q3_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #1")
 			@q3_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #2")
-			@q3.build_answer(@q3_a1, @survey)
-			@q3.build_answer(@q3_a2, @survey)
+			@q3.build_answer(@q3_a1)
+			@q3.build_answer(@q3_a2)
 
-			@q4 = ActiveRecordSurvey::Node::Question.new(:text => "Question #4")
+			@q4 = ActiveRecordSurvey::Node::Question.new(:text => "Question #4", :survey => @survey)
 			@q4_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #1")
 			@q4_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #2")
-			@q4.build_answer(@q4_a1, @survey)
-			@q4.build_answer(@q4_a2, @survey)
+			@q4.build_answer(@q4_a1)
+			@q4.build_answer(@q4_a2)
 
 			# Link up Q1
 			@q1_a1.build_link(@q2)
@@ -61,31 +106,31 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 			it 'should have the right number of node maps' do
 				@survey = ActiveRecordSurvey::Survey.new()
 
-				@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1")
+				@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
 				@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
 				@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #2")
 				@q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #3")
-				@q1.build_answer(@q1_a1, @survey)
-				@q1.build_answer(@q1_a2, @survey)
-				@q1.build_answer(@q1_a3, @survey)
+				@q1.build_answer(@q1_a1)
+				@q1.build_answer(@q1_a2)
+				@q1.build_answer(@q1_a3)
 
-				@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2")
+				@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
 				@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #1")
 				@q2_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #2")
-				@q2.build_answer(@q2_a1, @survey)
-				@q2.build_answer(@q2_a2, @survey)
+				@q2.build_answer(@q2_a1)
+				@q2.build_answer(@q2_a2)
 
-				@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Question #3")
+				@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Question #3", :survey => @survey)
 				@q3_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #1")
 				@q3_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #2")
-				@q3.build_answer(@q3_a1, @survey)
-				@q3.build_answer(@q3_a2, @survey)
+				@q3.build_answer(@q3_a1)
+				@q3.build_answer(@q3_a2)
 
-				@q4 = ActiveRecordSurvey::Node::Question.new(:text => "Question #4")
+				@q4 = ActiveRecordSurvey::Node::Question.new(:text => "Question #4", :survey => @survey)
 				@q4_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #1")
 				@q4_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #2")
-				@q4.build_answer(@q4_a1, @survey)
-				@q4.build_answer(@q4_a2, @survey)
+				@q4.build_answer(@q4_a1)
+				@q4.build_answer(@q4_a2)
 
 				expect(@survey.node_maps.length).to eq(13)
 
@@ -108,26 +153,26 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 
 				expect(@survey.node_maps.length).to eq(31)
 
-				@q5 = ActiveRecordSurvey::Node::Question.new(:text => "Question #5")
+				@q5 = ActiveRecordSurvey::Node::Question.new(:text => "Question #5", :survey => @survey)
 				@q5_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 Answer #1")
 				@q5_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 Answer #2")
 				@q5_a3 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 Answer #3")
 				@q5_a4 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 Answer #4")
 				@q5_a5 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q5 Answer #5")
 				# Boolean builds the links differently! - it chains them so there is no branching choice
-				@q5.build_answer(@q5_a1, @survey)
-				@q5.build_answer(@q5_a2, @survey)
-				@q5.build_answer(@q5_a3, @survey)
-				@q5.build_answer(@q5_a4, @survey)
-				@q5.build_answer(@q5_a5, @survey)
+				@q5.build_answer(@q5_a1)
+				@q5.build_answer(@q5_a2)
+				@q5.build_answer(@q5_a3)
+				@q5.build_answer(@q5_a4)
+				@q5.build_answer(@q5_a5)
 
 				@q4_a1.build_link(@q5)
 
 				expect(@survey.node_maps.length).to eq(67)
 
 				# Now - add an extra answer to Q1
-				@q1_a4 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #4")
-				@q1.build_answer(@q1_a4, @survey)
+				@q1_a4 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #4", :survey => @survey)
+				@q1.build_answer(@q1_a4)
 
 				expect(@survey.node_maps.length).to eq(68)
 

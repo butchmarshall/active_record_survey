@@ -5,15 +5,14 @@ describe ActiveRecordSurvey::Node::Answer::Scale, :scale_spec => true do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
 
-			@q1 = ActiveRecordSurvey::Node::Question.new()
+			@q1 = ActiveRecordSurvey::Node::Question.new(:survey => @survey)
 			@q1_a1 = ActiveRecordSurvey::Node::Answer::Scale.new()
 			@q1_a2 = ActiveRecordSurvey::Node::Answer::Scale.new()
 			@q1_a3 = ActiveRecordSurvey::Node::Answer::Scale.new()
 
-			@survey.build_question(@q1)
-			@q1.build_answer(@q1_a1, @survey)
-			@q1.build_answer(@q1_a2, @survey)
-			@q1.build_answer(@q1_a3, @survey)
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+			@q1.build_answer(@q1_a3)
 
 			@survey.save
 		end

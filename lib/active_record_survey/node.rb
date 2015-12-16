@@ -1,13 +1,16 @@
 module ActiveRecordSurvey
 	class Node < ::ActiveRecord::Base
 		self.table_name = "active_record_survey_nodes"
+		belongs_to :survey, :class_name => "ActiveRecordSurvey::Survey", :foreign_key => :active_record_survey_id
 		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_node_id, autosave: true
 		has_many :node_validations, :class_name => "ActiveRecordSurvey::NodeValidation", :foreign_key => :active_record_survey_node_id, autosave: true
 		has_many :instance_nodes, :class_name => "ActiveRecordSurvey::InstanceNode", :foreign_key => :active_record_survey_node_id
 
 		# All the answer nodes that follow from this node
 		def answers
-			self.node_maps.collect { |i|
+			self.survey.node_maps.select { |i|
+				i.node == self
+			}.collect { |i|
 				# Get all the children from this node
 				i.children
 			}.flatten.collect { |i|
@@ -17,6 +20,7 @@ module ActiveRecordSurvey
 				# Only the nodes that are answers
 				i.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
 			}.uniq.collect { |i|
+				i.survey = self.survey # ensure that the survey being referenced by the answers is the original survey - needed for keeping consistent node_maps between build_link and remove_link
 				[i] + i.answers
 			}.flatten.uniq
 		end
@@ -48,7 +52,7 @@ module ActiveRecordSurvey
 
 		# Default behaviour is to recurse up the chain (goal is to hit a question node)
 		def validate_parent_instance_node(instance_node, child_node)
-			!self.node_maps.collect { |node_map|
+			!self.survey.node_maps.select { |i| i.node == self}.collect { |node_map|
 				if node_map.parent
 					node_map.parent.node.validate_parent_instance_node(instance_node, self)
 				# Hit top node
@@ -72,7 +76,7 @@ module ActiveRecordSurvey
 			# More complex....
 			# Recureses to the parent node to check
 			# This is to validate Node::Question since they don't have instance_nodes directly to validate them
-			parent_validations_passed = !self.node_maps.collect { |node_map|
+			parent_validations_passed = !self.survey.node_maps.select { |i| i.node == self}.collect { |node_map|
 				if node_map.parent
 					node_map.parent.node.validate_parent_instance_node(instance_node, self)
 				# Hit top node
@@ -96,7 +100,7 @@ module ActiveRecordSurvey
 
 			# Start at each node_map of this node
 			# Find the parent node ma
-			paths = self.node_maps.collect { |node_map|
+			paths = self.survey.node_maps.select { |i| i.node == self }.collect { |node_map|
 				# There is another level to traverse
 				if node_map.parent
 					node_map.parent.node.instance_node_path_to_root?(instance_node)

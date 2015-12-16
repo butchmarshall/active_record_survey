@@ -5,11 +5,10 @@ describe ActiveRecordSurvey::Node::Answer::Text, :text_spec => true do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new
 
-			@q1 = ActiveRecordSurvey::Node::Question.new()
+			@q1 = ActiveRecordSurvey::Node::Question.new(:survey => @survey)
 			@q1_a1 = ActiveRecordSurvey::Node::Answer::Text.new()
 			@q1_a2 = ActiveRecordSurvey::Node::Answer::Text.new()
 
-			@survey.build_question(@q1)
 			@q1.build_answer(@q1_a1)
 			@q1.build_answer(@q1_a2)
 

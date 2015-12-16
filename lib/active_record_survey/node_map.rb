@@ -7,33 +7,34 @@ module ActiveRecordSurvey
 
 		validates_presence_of :survey
 
-		after_initialize do |i|
-			# Required for all functions to work without creating
-			i.survey.node_maps << self if i.new_record? && i.survey
-		end
-
 		# Recursively creates a copy of this entire node_map
 		def recursive_clone
-			node_map = self.node.node_maps.build(:survey => self.survey, :node => self.node)
+			node_map = self.survey.node_maps.build(:survey => self.survey, :node => self.node)
 			self.children.each { |child_node|
+				child_node.survey = self.survey # required due to voodoo - we want to use the same survey with the same object_id
 				node_map.children << child_node.recursive_clone
 			}
 			node_map
 		end
 
-		def as_map(node_maps = nil)
-			children = (node_maps.nil?)? self.children : node_maps.select { |i|
-				i.parent == self
+		def as_map(options)
+			node_maps = options[:node_maps]
+
+			c = (node_maps.nil?)? self.children : node_maps.select { |i|
+				i.parent == self && !i.marked_for_destruction?
 			}
 
-			{
-				:id => self.id,
-				:node_id => self.node.id,
+			result = {}
+			result.merge!({ :id => self.id, :node_id => self.node.id }) if !options[:no_ids]
+			result.merge!({
 				:type => self.node.class.to_s,
-				:children => children.collect { |i|
-					i.as_map(node_maps)
+				:children => c.collect { |i|
+					i.as_map(options)
 				}
-			}
+			})
+			
+
+			result
 		end
 
 		# Gets all the child nodes until one is not an ancestor of klass
@@ -56,6 +57,15 @@ module ActiveRecordSurvey
 				end
 			}
 			false
+		end
+		
+		def mark_self_and_children_for_destruction
+			removed = [self]
+			self.mark_for_destruction
+			self.children.each { |i|
+				removed.concat(i.mark_self_and_children_for_destruction)
+			}
+			removed
 		end
 	end
 end

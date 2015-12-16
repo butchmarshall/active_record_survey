@@ -11,6 +11,8 @@ require 'database_cleaner'
 # Trigger AR to initialize
 ActiveRecord::Base
 
+#ActiveRecord::Base.logger = Logger.new(STDOUT)
+
 module Rails
   def self.root
     '.'
@@ -30,9 +32,11 @@ end
 ActiveRecord::Migration.verbose = false
 
 require "generators/active_record_survey/templates/migration_0.1.0"
+require "generators/active_record_survey/templates/migration_0.1.26"
 
 ActiveRecord::Schema.define do
 	AddActiveRecordSurvey.up
+	Update_0_1_26_ActiveRecordSurvey.up
 
 	# Make it easier when you can put text on things
 	add_column :active_record_survey_nodes, :text, :string
