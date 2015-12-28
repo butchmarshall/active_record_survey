@@ -10,7 +10,7 @@ module ActiveRecordSurvey
 		# Recursively creates a copy of this entire node_map
 		def recursive_clone
 			node_map = self.survey.node_maps.build(:survey => self.survey, :node => self.node)
-			self.children.each { |child_node|
+			self.survey.node_maps.select { |i| i.parent == self && !i.marked_for_destruction? }.each { |child_node|
 				child_node.survey = self.survey # required due to voodoo - we want to use the same survey with the same object_id
 				node_map.children << child_node.recursive_clone
 			}
@@ -50,13 +50,13 @@ module ActiveRecordSurvey
 
 		# Check to see whether there is an infinite loop from this node_map
 		def has_infinite_loop?(path = [])
-			self.children.each { |i|
+			self.survey.node_maps.select { |i| i.parent == self && !i.marked_for_destruction? }.each { |i|
 				# Detect infinite loop
 				if path.include?(self.node) || i.has_infinite_loop?(path.clone.push(self.node))
 					return true
 				end
 			}
-			false
+			path.include?(self.node)
 		end
 		
 		def mark_self_and_children_for_destruction
