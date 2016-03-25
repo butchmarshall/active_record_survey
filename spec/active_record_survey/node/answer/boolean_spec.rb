@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
-	describe '#destroy', :focus => true do
+	describe '#destroy' do
 		it 'should re-link broken chains' do
 			survey = ActiveRecordSurvey::Survey.new()
 			q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => survey)

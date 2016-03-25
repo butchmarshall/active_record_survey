@@ -11,7 +11,15 @@ module ActiveRecordSurvey
 		def build_answer(answer_node)
 			# A survey must either be passed or already present in self.node_maps
 			if self.survey.nil?
-				raise ArgumentError.new "A survey must be passed if Question is not yet added to a survey"
+				raise ArgumentError.new "A survey must be passed if ActiveRecordSurvey::Node::Question is not yet added to a survey"
+			end
+
+			# Cannot mix answer types
+			# Check if not match existing - throw error
+			if !self.answers.select { |answer|
+				answer.class != answer_node.class
+			}.empty?
+				raise ArgumentError.new "Cannot mix answer types on question"
 			end
 
 			# Answers actually define how they're built off the parent node

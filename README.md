@@ -12,6 +12,9 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.30**
+ - `ActiveRecordSurvey::Node::Question` now throws ArgumentError if answers of different types are added to it
+
 **0.1.29**
  - `ActiveRecordSurvey::Node::Answer` now cleans up associated node_maps on destruction
  - extending/including `ActiveRecordSurvey::Answer::Chained` now rebuilds broken links in the parent<->child node_maps if a middle node_map is destroyed

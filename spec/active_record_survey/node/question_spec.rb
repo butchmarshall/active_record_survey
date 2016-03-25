@@ -13,6 +13,13 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 			it 'should raise ArgumentError if survey not linked to question' do
 				expect{@q.build_answer(@a1)}.to raise_error(ArgumentError)
 			end
+			it 'should raise ArgumentError if answers of different types added' do
+				@q.survey = @survey
+				a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "A1")
+				a2 = ActiveRecordSurvey::Node::Answer::Text.new(:text => "A2")
+				@q.build_answer(a1)
+				expect{@q.build_answer(a2)}.to raise_error(ArgumentError)
+			end
 		end
 
 		describe 'when valid' do
