@@ -25,9 +25,9 @@ module ActiveRecordSurvey
 			}
 
 			result = {}
-			result.merge!({ :id => self.id, :node_id => self.node.id }) if !options[:no_ids]
+			result.merge!({ :id => self.id, :node_id => ((self.node.respond_to?(:id))? self.node.id : "") }) if !options[:no_ids] && !self.node.nil?
 			result.merge!({
-				:type => self.node.class.to_s,
+				:type => ((!self.node.nil?)? self.node.class.to_s : ""),
 				:children => c.collect { |i|
 					i.as_map(options)
 				}

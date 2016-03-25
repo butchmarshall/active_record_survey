@@ -2,8 +2,8 @@ module ActiveRecordSurvey
 	class Node < ::ActiveRecord::Base
 		self.table_name = "active_record_survey_nodes"
 		belongs_to :survey, :class_name => "ActiveRecordSurvey::Survey", :foreign_key => :active_record_survey_id
-		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_node_id, autosave: true
-		has_many :node_validations, :class_name => "ActiveRecordSurvey::NodeValidation", :foreign_key => :active_record_survey_node_id, autosave: true
+		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_node_id, autosave: true, dependent: :destroy
+		has_many :node_validations, :class_name => "ActiveRecordSurvey::NodeValidation", :foreign_key => :active_record_survey_node_id, autosave: true, dependent: :destroy
 		has_many :instance_nodes, :class_name => "ActiveRecordSurvey::InstanceNode", :foreign_key => :active_record_survey_node_id
 
 		# All the answer nodes that follow from this node

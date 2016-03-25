@@ -1,6 +1,30 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
+	# When answer nodes are deleted should:
+	#	- Clean upp node_maps
+	#	- If chained, build a chain from parent -> child after removing self
+	describe '#destroy' do
+		it 'should clean up node maps' do
+			survey = ActiveRecordSurvey::Survey.new()
+			q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => survey)
+			q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
+			q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #2")
+			q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #3")
+			q1.build_answer(q1_a1)
+			q1.build_answer(q1_a2)
+			q1.build_answer(q1_a3)
+			survey.save
+
+			expect(survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
+
+			q1_a2.destroy
+			survey.reload
+
+			expect(survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
+		end
+	end
+
 	describe "#build_link" do
 		it 'should not have to be saved to produce a valid #as_map' do
 			survey = ActiveRecordSurvey::Survey.new()
@@ -83,7 +107,7 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 				expect{q3_a1.build_link(q1)}.to raise_error(RuntimeError) # This should throw exception
 			end
 
-			it 'should keep consistent number of nodes after calling #remove_link and #build_link', :focus => true do
+			it 'should keep consistent number of nodes after calling #remove_link and #build_link' do
 				survey = FactoryGirl.build(:simple_survey)
 				survey.save
 

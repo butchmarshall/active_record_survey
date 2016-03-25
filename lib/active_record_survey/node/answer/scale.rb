@@ -1,7 +1,8 @@
 module ActiveRecordSurvey
 	# Can hold a value on a scale (e.g. from 0-10)
 	class Node::Answer::Scale < Node::Answer
-		include Answer::Chained
+		include Answer::Chained::InstanceMethods
+		extend Answer::Chained::ClassMethods
 
 		# Accept integer, float, or empty values
 		def validate_instance_node(instance_node)

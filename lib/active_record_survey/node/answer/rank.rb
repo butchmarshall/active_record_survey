@@ -1,7 +1,8 @@
 module ActiveRecordSurvey
 	# Rank in relation to parent/children of ActiveRecordSurvey::Node::Answer::Rank
 	class Node::Answer::Rank < Node::Answer
-		include Answer::Chained
+		include Answer::Chained::InstanceMethods
+		extend Answer::Chained::ClassMethods
 
 		# Accept integer or empty values
 		# Must be within range of the number of ranking nodes

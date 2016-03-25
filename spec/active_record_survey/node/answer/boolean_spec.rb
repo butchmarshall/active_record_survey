@@ -1,6 +1,27 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
+	describe '#destroy', :focus => true do
+		it 'should re-link broken chains' do
+			survey = ActiveRecordSurvey::Survey.new()
+			q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => survey)
+			q1_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #1")
+			q1_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #2")
+			q1_a3 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #3")
+			q1.build_answer(q1_a1)
+			q1.build_answer(q1_a2)
+			q1.build_answer(q1_a3)
+			survey.save
+
+			expect(survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}])
+
+			q1_a2.destroy
+			survey.reload # reload seems to be necessary
+
+			expect(survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}])
+		end
+	end
+
 	describe 'a boolean survey is' do
 		before(:all) do
 			@survey = ActiveRecordSurvey::Survey.new()

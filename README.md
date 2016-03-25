@@ -12,6 +12,10 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.29**
+ - `ActiveRecordSurvey::Node::Answer` now cleans up associated node_maps on destruction
+ - extending/including `ActiveRecordSurvey::Answer::Chained` now rebuilds broken links in the parent<->child node_maps if a middle node_map is destroyed
+
 **0.1.26**
  - Major refactor of answer#build_link and answer#remove_link
  - `ActiveRecordSurvey::Node` now has a direct reference to its survey.  Don't forget to run the install task Update_0_1_26_ActiveRecordSurvey

@@ -1,7 +1,8 @@
 module ActiveRecordSurvey
 	# Boolean answers can have values 0|1
 	class Node::Answer::Boolean < Node::Answer
-		include Answer::Chained
+		include Answer::Chained::InstanceMethods
+		extend Answer::Chained::ClassMethods
 
 		# Only boolean values
 		def validate_instance_node(instance_node)
