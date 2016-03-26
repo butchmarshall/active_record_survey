@@ -22,7 +22,7 @@ module ActiveRecordSurvey
 
 			c = (node_maps.nil?)? self.children : node_maps.select { |i|
 				i.parent == self && !i.marked_for_destruction?
-			}
+			}.sort { |a,b| a.left<=>b.left }
 
 			result = {}
 			result.merge!({ :id => self.id, :node_id => ((self.node.respond_to?(:id))? self.node.id : "") }) if !options[:no_ids] && !self.node.nil?

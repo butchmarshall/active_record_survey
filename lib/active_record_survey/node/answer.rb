@@ -135,6 +135,30 @@ module ActiveRecordSurvey
 			}
 		end
 
+		# Moves answer up relative to other answers
+		def move_up
+			!self.survey.node_maps.select { |i|
+				i.node == self
+			}.collect { |node_map|
+				begin
+					node_map.move_left
+				rescue
+				end
+			}
+		end
+
+		# Moves answer down relative to other answers
+		def move_down
+			!self.survey.node_maps.select { |i|
+				i.node == self
+			}.collect { |node_map|
+				begin
+					node_map.move_right
+				rescue
+				end
+			}
+		end
+
 		private
 			# By default - answers build off the original question node
 			#

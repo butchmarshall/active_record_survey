@@ -11,6 +11,9 @@ The goal is to give a simple interface for creating surveys and validating the a
 
 Release Notes
 ============
+**0.1.31**
+ - `ActiveRecordSurvey::Node::Answer#move_up` and `ActiveRecordSurvey::Node::Answer#move_down` implemented so you can change the position of answers relative to one another i both branching and chained types.
+	I am not happy yet with this.  [AwesomeNestedSet](https://github.com/collectiveidea/awesome_nested_set) seems to require nodes exist before moving them which is a limitation I'd like to not have.
 
 **0.1.30**
  - `ActiveRecordSurvey::Node::Question` now throws ArgumentError if answers of different types are added to it
