@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
-	describe '#sibling_index', :focus => true do
+	describe '#sibling_index' do
 		before(:each) do
 			@survey = ActiveRecordSurvey::Survey.new()
 			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
@@ -32,6 +32,22 @@ describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
 			@q1.build_answer(@q1_a2)
 			@q1.build_answer(@q1_a3)
 			@survey.save
+		end
+
+		describe '#sibling_index', :focus => true do
+			it 'should go higher if possible' do
+				@q1_a3.sibling_index = 0
+
+				@survey.reload
+				expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}])
+			end
+
+			it 'should go lower if possible' do
+				@q1_a1.sibling_index = 2
+
+				@survey.reload
+				expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}])
+			end
 		end
 
 		describe '#move_up' do

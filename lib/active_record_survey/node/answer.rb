@@ -151,9 +151,19 @@ module ActiveRecordSurvey
 			}
 		end
 
+		def sibling_index=index
+			current_index = self.sibling_index
+
+			offset = index - current_index
+
+			(0..offset.abs).each { |i|
+				self.send(((offset > 0)? "move_down" : "move_up"))
+			}
+		end
+
 		# Moves answer up relative to other answers
 		def move_up
-			!self.survey.node_maps.select { |i|
+			self.survey.node_maps.select { |i|
 				i.node == self
 			}.collect { |node_map|
 				begin
@@ -165,7 +175,7 @@ module ActiveRecordSurvey
 
 		# Moves answer down relative to other answers
 		def move_down
-			!self.survey.node_maps.select { |i|
+			self.survey.node_maps.select { |i|
 				i.node == self
 			}.collect { |node_map|
 				begin

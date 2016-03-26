@@ -12,6 +12,9 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.33**
+ - `ActiveRecordSurvey::Node::Answer#sibling_index` method for setting position as well
+
 **0.1.32**
  - `ActiveRecordSurvey::Node::Answer#sibling_index` for regular answers and chained answers
 
