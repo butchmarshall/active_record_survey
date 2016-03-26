@@ -20,6 +20,7 @@ module ActiveRecordSurvey
 				end
 
 				# Chain nodes are different - they must find the final answer node added and add to it
+				# They must also see if the final answer node then points somewhere else - and fix the links on that
 				def build_answer(question_node)
 					self.survey = question_node.survey
 
@@ -37,7 +38,17 @@ module ActiveRecordSurvey
 					self.survey.node_maps.select { |i|
 						i.node == last_answer_in_chain
 					}.each { |node_map|
-						node_map.children << self.survey.node_maps.build(:node => self, :survey => self.survey)
+						curr_children = self.survey.node_maps.select { |j|
+							node_map.children.include?(j)
+						}
+
+						new_node_map = self.survey.node_maps.build(:node => self, :survey => self.survey)
+
+						node_map.children << new_node_map
+
+						curr_children.each { |c|
+							new_node_map.children << c
+						}
 					}
 
 					true

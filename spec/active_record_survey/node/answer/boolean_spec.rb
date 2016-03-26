@@ -1,6 +1,40 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
+	describe '#build_answer' do
+		before(:each) do
+			@survey = ActiveRecordSurvey::Survey.new()
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
+			@q1_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #1")
+			@q1_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #2")
+			@q1_a3 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #3")
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+			@q1.build_answer(@q1_a3)
+
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
+			@q2_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q2 Answer #1")
+			@q2_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q2 Answer #2")
+			@q2_a3 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q2 Answer #3")
+			@q2.build_answer(@q2_a1)
+			@q2.build_answer(@q2_a2)
+			@q2.build_answer(@q2_a3)
+
+			@q1_a3.build_link(@q2)
+
+			@survey.save
+		end
+
+		it 'should append to last answer and fix chain to next question' do
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q2 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q2 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}]}]}]}]}])
+
+			@q1_a4 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q2 Answer #4")
+			@q1.build_answer(@q1_a4)
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q2 Answer #4", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q2 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q2 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}]}]}]}]}]}])
+		end
+	end
+
 	describe '#sibling_index' do
 		before(:each) do
 			@survey = ActiveRecordSurvey::Survey.new()
