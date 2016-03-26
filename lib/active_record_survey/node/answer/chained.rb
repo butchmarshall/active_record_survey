@@ -8,6 +8,17 @@ module ActiveRecordSurvey
 			end
 
 			module InstanceMethods
+				# Gets index relative to other chained answers
+				def sibling_index
+					if node_map = self.survey.node_maps.select { |i|
+						i.node == self
+					}.first
+						return node_map.ancestors_until_node_not_ancestor_of(::ActiveRecordSurvey::Node::Answer).length-1
+					end
+
+					return 0
+				end
+
 				# Chain nodes are different - they must find the final answer node added and add to it
 				def build_answer(question_node)
 					self.survey = question_node.survey

@@ -11,6 +11,22 @@ module ActiveRecordSurvey
 			}.include?(false)
 		end
 
+		# Gets index in sibling relationship
+		def sibling_index
+			if node_map = self.survey.node_maps.select { |i|
+				i.node == self
+			}.first
+
+				node_map.parent.children.each_with_index { |nm, i|
+					if nm == node_map
+						return i
+					end
+				}
+			end
+
+			return 0
+		end
+
 		# Returns the question that preceeds this answer
 		def question
 			self.survey.node_maps.select { |i|

@@ -1,6 +1,27 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
+
+	describe '#sibling_index', :focus => true do
+		before(:each) do
+			@survey = ActiveRecordSurvey::Survey.new()
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
+			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
+			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #2")
+			@q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #3")
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+			@q1.build_answer(@q1_a3)
+			@survey.save
+		end
+
+		it 'should give the answers position relative to its sublings' do
+			expect(@q1_a1.sibling_index).to eq(0)
+			expect(@q1_a2.sibling_index).to eq(1)
+			expect(@q1_a3.sibling_index).to eq(2)
+		end
+	end
+
 	describe 'move operations' do
 		before(:each) do
 			@survey = ActiveRecordSurvey::Survey.new()
