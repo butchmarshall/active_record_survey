@@ -49,6 +49,11 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 				expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
 			end
 
+			it 'should go lower by one' do
+				@q1_a1.sibling_index = 1
+				@survey.reload
+			end
+
 			it 'should go lower if possible' do
 				@q1_a1.sibling_index = 2
 

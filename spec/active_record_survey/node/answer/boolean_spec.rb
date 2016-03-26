@@ -34,7 +34,7 @@ describe ActiveRecordSurvey::Node::Answer::Boolean, :boolean_spec => true do
 			@survey.save
 		end
 
-		describe '#sibling_index', :focus => true do
+		describe '#sibling_index' do
 			it 'should go higher if possible' do
 				@q1_a3.sibling_index = 0
 
