@@ -1,6 +1,88 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Question, :question_spec => true do
+	describe "#next_questions" do
+		it "should return an array of all questions following a question, whether they have answers or not" do
+			@survey = ActiveRecordSurvey::Survey.new()
+
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
+			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
+			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #2")
+			@q1_a3 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #3")
+			@q1_a4 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #4")
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+			@q1.build_answer(@q1_a3)
+			@q1.build_answer(@q1_a4)
+
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
+			@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #1")
+			@q2_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 Answer #2")
+			@q2.build_answer(@q2_a1)
+			@q2.build_answer(@q2_a2)
+
+			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Question #3", :survey => @survey)
+			@q3_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #1")
+			@q3_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q3 Answer #2")
+			@q3.build_answer(@q3_a1)
+			@q3.build_answer(@q3_a2)
+
+			@q4 = ActiveRecordSurvey::Node::Question.new(:text => "Question #4", :survey => @survey)
+			@q4_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #1")
+			@q4_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q4 Answer #2")
+			@q4.build_answer(@q4_a1)
+			@q4.build_answer(@q4_a2)
+
+			@q5 = ActiveRecordSurvey::Node::Question.new(:text => "Question #5", :survey => @survey)
+
+			@q6 = ActiveRecordSurvey::Node::Question.new(:text => "Question #6", :survey => @survey)
+			@q6_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q6 Answer #1")
+			@q6_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q6 Answer #2")
+			@q6.build_answer(@q6_a1)
+			@q6.build_answer(@q6_a2)
+
+			@q7 = ActiveRecordSurvey::Node::Question.new(:text => "Question #7", :survey => @survey)
+
+			# Link up Q1
+			@q1_a1.build_link(@q2)
+			@q1_a2.build_link(@q3)
+			@q1_a3.build_link(@q4)
+
+			# Link up Q2
+			@q2_a1.build_link(@q4)
+			@q2_a2.build_link(@q3)
+
+			# Link up Q3
+			@q3_a1.build_link(@q4)
+			@q3_a2.build_link(@q4)
+
+			# Link up Q1A4 -> Q5
+			@q1_a4.build_link(@q5)
+
+			# Link up Q5 -> Q6
+			@q5.build_link(@q6)
+
+			# Link up Q6 -> Q7
+			@q6_a2.build_link(@q7)
+
+			@survey.save
+
+			q1_next_questions = @q1.next_questions
+			q2_next_questions = @q2.next_questions
+			q3_next_questions = @q3.next_questions
+			q4_next_questions = @q4.next_questions
+			q5_next_questions = @q5.next_questions
+			q6_next_questions = @q6.next_questions
+
+			expect(q1_next_questions.length).to eq(4)
+			expect(q2_next_questions.length).to eq(2)
+			expect(q3_next_questions.length).to eq(1)
+			expect(q4_next_questions.length).to eq(0)
+			expect(q5_next_questions.length).to eq(1)
+			expect(q6_next_questions.length).to eq(1)
+		end
+	end
+
 	describe "#build_answer" do
 		before(:each) do
 			@survey = ActiveRecordSurvey::Survey.new()

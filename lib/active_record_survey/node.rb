@@ -6,6 +6,8 @@ module ActiveRecordSurvey
 		has_many :node_validations, :class_name => "ActiveRecordSurvey::NodeValidation", :foreign_key => :active_record_survey_node_id, autosave: true, dependent: :destroy
 		has_many :instance_nodes, :class_name => "ActiveRecordSurvey::InstanceNode", :foreign_key => :active_record_survey_node_id
 
+		before_destroy :before_destroy_rebuild_node_map, prepend: true # prepend is important! otherwise dependent: :destroy on node<->node_map relation is executed first and no records!
+
 		# All the answer nodes that follow from this node
 		def answers
 			self.survey.node_maps.select { |i|
@@ -113,5 +115,102 @@ module ActiveRecordSurvey
 			# If recursion reports back to have at least one valid path to root
 			paths.include?(true)
 		end
+
+		# Removes the node_map link
+		def remove_link
+			# not linked to a question - nothing to remove!
+			return true if (question = self.next_question).nil?
+
+			count = 0
+			to_remove = []
+			self.survey.node_maps.each { |node_map|
+				if node_map.node == question
+					if count > 0
+						to_remove.concat(node_map.self_and_descendants)
+					else
+						node_map.parent = nil
+					end
+					count = count + 1
+				end
+
+				if node_map.node == self
+					node_map.children = []
+				end
+			}
+			self.survey.node_maps.each { |node_map|
+				if to_remove.include?(node_map)
+					node_map.parent = nil
+					node_map.mark_for_destruction
+				end
+			}
+		end
+
+		# Build a link from this node to another node
+		# Building a link actually needs to throw off a whole new clone of all children nodes
+		def build_link(to_node)
+			# build_link only accepts a to_node that inherits from Question
+			if !to_node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+				raise ArgumentError.new "to_node must inherit from ::ActiveRecordSurvey::Node::Question"
+			end
+
+			if self.survey.nil?
+				raise ArgumentError.new "A survey is required before calling #build_link"
+			end
+
+			from_node_maps = self.survey.node_maps.select { |i| i.node == self && !i.marked_for_destruction? }
+
+			# Answer has already got a question - throw error
+			if from_node_maps.select { |i|
+				i.children.length === 0
+			}.length === 0
+				raise RuntimeError.new "This node has already been linked" 
+			end
+
+			# Because we need something to clone - filter this further below
+			to_node_maps = self.survey.node_maps.select { |i| i.node == to_node && !i.marked_for_destruction? }
+
+			if to_node_maps.first.nil?
+				to_node_maps << self.survey.node_maps.build(:survey => self.survey, :node => to_node)
+			end
+
+			# Ensure we can through each possible path of getting to this answer
+			to_node_map = to_node_maps.first
+			to_node_map.survey = self.survey # required due to voodoo - we want to use the same survey with the same object_id
+
+			# We only want node maps that aren't linked somewhere
+			to_node_maps = to_node_maps.select { |i| i.parent.nil? }
+			while to_node_maps.length < from_node_maps.length do
+				to_node_maps.push(to_node_map.recursive_clone)
+			end
+
+			# Link unused node_maps to the new parents
+			from_node_maps.each_with_index { |from_node_map, index|
+				from_node_map.children << to_node_maps[index]
+			}
+
+			# Ensure no infinite loops were created
+			from_node_maps.each { |node_map|
+				# There is a path from Q -> A that is a loop
+				if node_map.has_infinite_loop?
+					raise RuntimeError.new "Infinite loop detected"
+				end
+			}
+		end
+
+		private
+			# Before a node is destroyed, will re-build the node_map links from parent to child if they exist
+			def before_destroy_rebuild_node_map
+				# All the node_maps from this node
+				self.survey.node_maps.select { |i|
+					i.node == self
+				}.each { |node_map|
+					# Remap all of this nodes children to the parent
+					node_map.children.each  { |child|
+						node_map.parent.children << child
+					}
+				}
+
+				true
+			end
 	end
 end

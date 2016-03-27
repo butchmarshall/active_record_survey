@@ -25,5 +25,26 @@ module ActiveRecordSurvey
 			# Answers actually define how they're built off the parent node
 			answer_node.send(:build_answer, self)
 		end
+
+		# Returns the questions that follows this question (either directly or via its answers)
+		def next_questions
+			list = []
+
+			if question_node_map = self.survey.node_maps.select { |i|
+				i.node == self && !i.marked_for_destruction?
+			}.first
+				question_node_map.children.each { |child|
+					if !child.node.nil? && !child.marked_for_destruction?
+						if child.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+							list << child.node
+						elsif child.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
+							list << child.node.next_question 
+						end
+					end
+				}
+			end
+
+			list.compact.uniq
+		end
 	end
 end

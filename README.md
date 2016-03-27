@@ -12,6 +12,10 @@ The goal is to give a simple interface for creating surveys and validating the a
 Release Notes
 ============
 
+**0.1.36**
+ - `ActiveRecordSurvey::Node::Answer#build_link` and `ActiveRecordSurvey::Node::Answer#remove_link` moved to `ActiveRecordSurvey::Node` so that questions can directly follow one another without answers
+ - Implemented `ActiveRecordSurvey::Node::Question#next_questions` to return all questions that follow either directly or through answers
+
 **0.1.33**
  - `ActiveRecordSurvey::Node::Answer#sibling_index` method for setting position as well
 
