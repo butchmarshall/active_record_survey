@@ -116,35 +116,6 @@ module ActiveRecordSurvey
 			paths.include?(true)
 		end
 
-		# Removes the node_map link
-		def remove_link
-			# not linked to a question - nothing to remove!
-			return true if (question = self.next_question).nil?
-
-			count = 0
-			to_remove = []
-			self.survey.node_maps.each { |node_map|
-				if node_map.node == question
-					if count > 0
-						to_remove.concat(node_map.self_and_descendants)
-					else
-						node_map.parent = nil
-					end
-					count = count + 1
-				end
-
-				if node_map.node == self
-					node_map.children = []
-				end
-			}
-			self.survey.node_maps.each { |node_map|
-				if to_remove.include?(node_map)
-					node_map.parent = nil
-					node_map.mark_for_destruction
-				end
-			}
-		end
-
 		# Build a link from this node to another node
 		# Building a link actually needs to throw off a whole new clone of all children nodes
 		def build_link(to_node)
@@ -161,8 +132,8 @@ module ActiveRecordSurvey
 
 			# Answer has already got a question - throw error
 			if from_node_maps.select { |i|
-				i.children.length === 0
-			}.length === 0
+				i.children.length > 0
+			}.length > 0
 				raise RuntimeError.new "This node has already been linked" 
 			end
 

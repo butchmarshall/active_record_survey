@@ -1,6 +1,84 @@
 require 'spec_helper'
 
 describe ActiveRecordSurvey::Node::Question, :question_spec => true do
+	describe "#remove_link" do
+		it 'should remove the link between the question and child questions or answers child questions', :focus => true do
+			@survey = ActiveRecordSurvey::Survey.new()
+			@survey.save
+
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
+			@survey.build_first_question(@q1)
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
+			@q1.build_link(@q2)
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}])
+
+			@q1.remove_link
+
+			@survey.save
+			@survey.reload
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}])
+
+			@q1.build_link(@q2)
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}])
+
+			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 Answer #1")
+			@q1.build_answer(@q1_a1)
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}])
+
+			@q1.remove_link
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
+
+			@survey.save
+			@survey.reload
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
+		end
+	end
+
+	describe "#build_link" do
+		it 'should build a link between two questions' do
+			@survey = ActiveRecordSurvey::Survey.new()
+
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
+			@survey.build_first_question(@q1)
+
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
+
+			@q1.build_link(@q2)
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}])
+		end
+
+		it 'should still allow answers to be inserted' do
+			@survey = ActiveRecordSurvey::Survey.new()
+
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => @survey)
+			@survey.build_first_question(@q1)
+
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #2", :survey => @survey)
+
+			@q1.build_link(@q2)
+
+			@q1_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #1")
+			@q1.build_answer(@q1_a1)
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}])
+
+			@q1_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #2")
+			@q1.build_answer(@q1_a2)
+
+			@survey.save
+			@survey.reload
+
+			expect(@survey.as_map(no_ids: true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[]}]}]}]}])
+		end
+	end
+
 	describe "#next_questions" do
 		it "should return an array of all questions following a question, whether they have answers or not" do
 			@survey = ActiveRecordSurvey::Survey.new()

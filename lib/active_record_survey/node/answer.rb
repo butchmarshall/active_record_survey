@@ -50,6 +50,35 @@ module ActiveRecordSurvey
 			return nil
 		end
 
+		# Removes the node_map from this answer to its next question
+		def remove_link
+			# not linked to a question - nothing to remove!
+			return true if (question = self.next_question).nil?
+
+			count = 0
+			to_remove = []
+			self.survey.node_maps.each { |node_map|
+				if node_map.node == question
+					if count > 0
+						to_remove.concat(node_map.self_and_descendants)
+					else
+						node_map.parent = nil
+					end
+					count = count + 1
+				end
+
+				if node_map.node == self
+					node_map.children = []
+				end
+			}
+			self.survey.node_maps.each { |node_map|
+				if to_remove.include?(node_map)
+					node_map.parent = nil
+					node_map.mark_for_destruction
+				end
+			}
+		end
+
 		def build_link(to_node)
 			if self.question.nil?
 				raise ArgumentError.new "A question is required before calling #build_link"

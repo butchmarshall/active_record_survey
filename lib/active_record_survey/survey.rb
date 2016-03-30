@@ -9,6 +9,21 @@ module ActiveRecordSurvey
 			self.node_maps.includes(:node).select { |i| i.depth === 0 }.first
 		end
 
+		# Builds first question
+		def build_first_question(question_node)
+			if !question_node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
+				raise ArgumentError.new "must inherit from ::ActiveRecordSurvey::Node::Question"
+			end
+
+			question_node_maps = self.node_maps.select { |i| i.node == question_node && !i.marked_for_destruction? }
+
+			# No node_maps exist yet from this question
+			if question_node_maps.length === 0
+				# Build our first node-map
+				question_node_maps << self.node_maps.build(:node => question_node, :survey => self)
+			end
+		end
+
 		def as_map(*args)
 			options = args.extract_options!
 			options[:node_maps] ||= self.node_maps
