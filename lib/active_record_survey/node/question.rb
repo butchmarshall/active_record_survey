@@ -86,5 +86,24 @@ module ActiveRecordSurvey
 
 			list.compact.uniq
 		end
+
+		private
+			# Before a node is destroyed, will re-build the node_map links from parent to child if they exist
+			# If a question is being destroyed and it has answers - don't link its answers - only parent questions that follow it
+			def before_destroy_rebuild_node_map
+
+				self.survey.node_maps.select { |i|
+					i.node == self
+				}.each { |node_map|
+					# Remap all of this nodes children to the parent
+					node_map.children.each  { |child|
+						if !child.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
+							node_map.parent.children << child
+						end
+					}
+				}
+
+				true
+			end
 	end
 end
