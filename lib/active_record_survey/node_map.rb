@@ -37,6 +37,21 @@ module ActiveRecordSurvey
 			result
 		end
 
+		# Whether decendant of a particular node_map
+		def is_decendant_of?(node_map)
+			# Hit ourselves
+			if node_map == self
+				return true
+			end
+
+			# Recurse
+			if self.parent
+				return self.parent.is_decendant_of?(node_map)
+			end
+
+			false
+		end
+
 		# Gets all the ancestor nodes until one is not an ancestor of klass
 		def ancestors_until_node_not_ancestor_of(klass)
 			if !self.parent || !self.node.class.ancestors.include?(klass)
