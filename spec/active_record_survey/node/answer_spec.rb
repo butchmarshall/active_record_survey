@@ -345,6 +345,21 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 		end
 
 		describe '#next_question' do
+			it 'should not have a next question if not linked anywhere' do
+				survey = FactoryGirl.build(:survey1)
+				survey.save
+
+				q2 = survey.questions.select { |i|
+					i.text == "Question #2"
+				}.first
+
+				q2_a1 = q2.answers.select { |i|
+					i.text == "Q2 Answer #1"
+				}.first
+
+				expect(q2_a1.next_question).to be(nil)
+			end
+
 			it 'should get the next question' do
 				expected = {
 					"Q1" => {
