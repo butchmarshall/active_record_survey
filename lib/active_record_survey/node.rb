@@ -92,10 +92,17 @@ module ActiveRecordSurvey
 
 		# Whether there is a valid answer path from this node to the root node for the instance
 		def instance_node_path_to_root?(instance_node)
-			instance_nodes = instance_node.instance.instance_nodes.select { |i| i.node === self }
+			instance_nodes = instance_node.instance.instance_nodes.select { |i| i.node == self }
 
 			# if ::ActiveRecordSurvey::Node::Answer but no votes, not a valid path
 			if self.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer) &&
+				(instance_nodes.length === 0)
+				return false
+			end
+
+			# if ::ActiveRecordSurvey::Node::Question but no answers, so needs at least one vote directly on itself
+			if self.class.ancestors.include?(::ActiveRecordSurvey::Node::Question) &&
+				(self.answers.length === 0) && 
 				(instance_nodes.length === 0)
 				return false
 			end
