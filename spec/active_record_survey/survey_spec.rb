@@ -47,6 +47,15 @@ describe ActiveRecordSurvey::Survey, :survey_spec => true do
 			@survey.save
 		end
 
+		describe '#edges', :focus => true do
+			it 'should return an array of all the connective edges' do
+				edges = @survey.edges
+
+				expect(edges.length).to eq(16)
+				expect(edges).to eq([{:source=>1, :target=>2}, {:source=>1, :target=>12}, {:source=>1, :target=>13}, {:source=>2, :target=>3}, {:source=>3, :target=>4}, {:source=>3, :target=>8}, {:source=>12, :target=>9}, {:source=>9, :target=>10}, {:source=>9, :target=>11}, {:source=>13, :target=>5}, {:source=>5, :target=>6}, {:source=>5, :target=>7}, {:source=>4, :target=>5}, {:source=>8, :target=>9}, {:source=>10, :target=>5}, {:source=>11, :target=>5}])
+			end
+		end
+
 		describe '#questions' do
 			it 'should return all the questions' do
 				expect(@survey.questions.length).to be (4)

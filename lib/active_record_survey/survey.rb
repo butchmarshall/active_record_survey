@@ -24,6 +24,18 @@ module ActiveRecordSurvey
 			end
 		end
 
+		# All the connective edges
+		def edges
+			self.node_maps.select { |i| !i.marked_for_destruction? }.select { |i|
+				i.node && i.parent
+			}.collect { |i|
+				{
+					:source => i.parent.node.id,
+					:target => i.node.id,
+				}
+			}.uniq
+		end
+
 		def as_map(*args)
 			options = args.extract_options!
 			options[:node_maps] ||= self.node_maps
