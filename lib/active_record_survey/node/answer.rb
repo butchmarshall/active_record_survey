@@ -63,6 +63,7 @@ module ActiveRecordSurvey
 						to_remove.concat(node_map.self_and_descendants)
 					else
 						node_map.parent = nil
+						node_map.move_to_root unless node_map.new_record?
 					end
 					count = count + 1
 				end
@@ -71,6 +72,7 @@ module ActiveRecordSurvey
 					node_map.children = []
 				end
 			}
+
 			self.survey.node_maps.each { |node_map|
 				if to_remove.include?(node_map)
 					node_map.parent = nil

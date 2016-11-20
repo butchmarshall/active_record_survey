@@ -126,6 +126,28 @@ describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 	end
 
 	describe "#build_link" do
+		it 'should correctly move to root when all links link removed' do
+			survey = ActiveRecordSurvey::Survey.new()
+
+			q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => survey)
+			q1_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #1")
+			q1_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #2")
+			q1.build_answer(q1_a1)
+			q1.build_answer(q1_a2)
+
+			q2 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => survey)
+			q2_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #1")
+			q2_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q1 Answer #2")
+			q2.build_answer(q2_a1)
+			q2.build_answer(q2_a2)
+			survey.save
+
+			q1_a2.build_link(q2)
+
+			q1_a2.remove_link
+
+			q2_a2.build_link(q1)
+		end
 		it 'should not have to be saved to produce a valid #as_map' do
 			survey = ActiveRecordSurvey::Survey.new()
 			q1 = ActiveRecordSurvey::Node::Question.new(:text => "Question #1", :survey => survey)
