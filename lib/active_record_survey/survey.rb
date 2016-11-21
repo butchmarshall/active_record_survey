@@ -2,7 +2,7 @@ module ActiveRecordSurvey
 	class Survey < ::ActiveRecord::Base
 		self.table_name = "active_record_surveys"
 		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_id, autosave: true
-		has_many :nodes, -> { distinct }, :through => :node_maps
+		has_many :nodes, :class_name => "ActiveRecordSurvey::Node", :foreign_key => :active_record_survey_id
 		has_many :questions, :class_name => "ActiveRecordSurvey::Node::Question", :foreign_key => :active_record_survey_id
 
 		def root_node
