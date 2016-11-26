@@ -142,9 +142,32 @@ module ActiveRecordSurvey
 		private
 			# By default - answers build off the original question node
 			#
+			# This allows us to easily override the answer removal behaviour for different answer types
+			def remove_answer(question_node)
+				#self.survey = question_node.survey
+
+				# The node from answer from the parent question
+				self.survey.node_maps.select { |i|
+					!i.marked_for_destruction? &&
+					i.node == self && i.parent && i.parent.node === question_node
+				}.each { |answer_node_map|
+					answer_node_map.send((answer_node_map.new_record?)? :destroy : :mark_for_destruction )
+				}
+			end
+
+			# By default - answers build off the original question node
+			#
 			# This allows us to easily override the answer building behaviour for different answer types
 			def build_answer(question_node)
 				self.survey = question_node.survey
+
+				answer_node_maps = self.survey.node_maps.select { |i|
+					i.node == self && i.parent.nil?
+				}.collect { |i|
+					i.survey = self.survey
+
+					i
+				}
 
 				question_node_maps = self.survey.node_maps.select { |i| i.node == question_node && !i.marked_for_destruction? }
 
@@ -155,8 +178,14 @@ module ActiveRecordSurvey
 				end
 
 				# Each instance of this question needs the answer hung from it
-				question_node_maps.each { |question_node_map|
-					question_node_map.children << self.survey.node_maps.build(:node => self, :survey => self.survey)
+				question_node_maps.each_with_index { |question_node_map, index|
+					if answer_node_maps[index]
+						new_node_map = answer_node_maps[index]
+					else
+						new_node_map = self.survey.node_maps.build(:node => self, :survey => self.survey)
+					end
+
+					question_node_map.children << new_node_map
 				}
 
 				true

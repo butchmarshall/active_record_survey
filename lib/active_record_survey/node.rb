@@ -10,6 +10,26 @@ module ActiveRecordSurvey
 
 		# All the answer nodes that follow from this node
 		def answers
+#=begin
+			next_answer_nodes = lambda { |node, survey, list|
+				survey.node_maps.select { |node_map|
+					!node_map.parent.nil? && node_map.parent.node == node && node_map.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer) && !node_map.marked_for_destruction?
+				}.select { |i|
+					!list.include?(i.node)
+				}.collect { |i|
+					i.survey = self.survey
+					i.node.survey = self.survey
+
+					list << i.node
+
+					next_answer_nodes.call(i.node, survey, list)
+				}.flatten.uniq
+
+				list
+			}
+			next_answer_nodes.call(self, self.survey, []).flatten.uniq
+#=end
+=begin
 			self.survey.node_maps.select { |i|
 				i.node == self
 			}.collect { |i|
@@ -25,6 +45,7 @@ module ActiveRecordSurvey
 				i.survey = self.survey # ensure that the survey being referenced by the answers is the original survey - needed for keeping consistent node_maps between build_link and remove_link
 				[i] + i.answers
 			}.flatten.uniq
+=end
 		end
 
 		# The instance_node recorded for the passed instance for this node

@@ -53,7 +53,7 @@ describe ActiveRecordSurvey::Survey, :survey_spec => true do
 			end
 		end
 
-		describe '#nodes', :focus => true do
+		describe '#nodes' do
 			it 'should return an array of all the nodes' do
 				expect(@survey.nodes.length).to eq(13)
 			end

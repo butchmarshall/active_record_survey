@@ -51,6 +51,115 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 		end
 	end
 
+	describe "#remove_answer" do
+		before(:each) do
+			@survey = ActiveRecordSurvey::Survey.new()
+
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1", :survey => @survey)
+			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
+			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A2")
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2", :survey => @survey)
+			@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A1")
+			@q2_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A2")
+			@q2.build_answer(@q2_a1)
+			@q2.build_answer(@q2_a2)
+
+			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3", :survey => @survey)
+			@q3_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A1")
+			@q3_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A1")
+			@q3.build_answer(@q3_a1)
+			@q3.build_answer(@q3_a2)
+
+			@survey.save
+		end
+
+		it 'should remove the answer for regular answers' do
+			expect(@q1.answers.length).to eq(2)
+
+			@q1.remove_answer(@q1_a1)
+
+			expect(@q1.answers.length).to eq(1)
+		end
+
+		it 'should remove the answer for boolean answers' do
+			expect(@q3.answers.length).to eq(2)
+
+			@q3.remove_answer(@q3_a1)
+
+			@survey.save
+			@survey.reload
+
+			expect(@q3.answers.length).to eq(1)
+		end
+
+		it 'should remove the answer for boolean answers, and keep full question links' do
+			@q3_a2.build_link(@q2)
+
+			@survey.save
+			@survey.reload
+
+			expect(@q3.answers.length).to eq(2)
+			expect(@q3.next_questions.length).to eq(1)
+
+			@q3.remove_answer(@q3_a1)
+
+			@survey.save
+			@survey.reload
+
+			expect(@q3.answers.length).to eq(1)
+			expect(@q3.next_questions.length).to eq(1)
+		end
+	end
+
+	describe "#update_question_type" do
+		before(:each) do
+			@survey = ActiveRecordSurvey::Survey.new()
+
+			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1", :survey => @survey)
+			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
+			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A2")
+			@q1.build_answer(@q1_a1)
+			@q1.build_answer(@q1_a2)
+
+			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2", :survey => @survey)
+			@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A1")
+			@q2.build_answer(@q2_a1)
+
+			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3", :survey => @survey)
+			@q3_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A1")
+			@q3_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A2")
+			@q3.build_answer(@q3_a1)
+			@q3.build_answer(@q3_a2)
+
+			@survey.save
+		end
+		it 'should raise exception linked to another question' do
+			@q1_a1.build_link(@q2)
+			@survey.save
+
+			expect{@q1.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)}.to raise_error(RuntimeError)
+		end
+		it 'should change ActiveRecordSurvey::Node::Answer to ActiveRecordSurvey::Node::Answer::Boolean' do
+			@q1.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)
+			expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Q1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 A2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}, {"text"=>"Q2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 A1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q3 A2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}])
+			expect(@q1.answers.length).to eq(2)
+			@q1.answers.each { |answer|
+				expect(answer.class).to eq(ActiveRecordSurvey::Node::Answer::Boolean)
+			}
+		end
+		it  'should change ActiveRecordSurvey::Node::Answer::Boolean to ActiveRecordSurvey::Node::Answer' do
+			@q3.update_question_type(ActiveRecordSurvey::Node::Answer)
+			expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Q1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 A2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q3 A2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
+			expect(@q3.answers.length).to eq(2)
+			@q3.answers.each { |answer|
+				expect(answer.class).to eq(ActiveRecordSurvey::Node::Answer)
+			}
+		end
+	end
+
 	describe "#remove_link" do
 		it 'should remove the link between the question and child questions or answers child questions' do
 			@survey = ActiveRecordSurvey::Survey.new()

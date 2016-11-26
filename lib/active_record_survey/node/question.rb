@@ -7,6 +7,55 @@ module ActiveRecordSurvey
 			}.include?(false)
 		end
 
+		# Updates the answers of this question to a different type
+		def update_question_type(klass)
+			if self.next_questions.length > 0
+				raise RuntimeError.new "No questions can follow when changing the question type" 
+			end
+
+			nm = self.survey.node_maps
+
+			self.answers.collect { |answer|
+				nm.select { |i|
+					i.node == answer
+				}
+			}.flatten.uniq.collect { |answer_node_map|
+				answer_node_map.move_to_root
+				answer_node_map.survey = self.survey
+
+				answer_node_map
+			}.collect { |answer_node_map|
+				answer_node_map.node.type = klass.to_s
+				answer_node_map.node = answer_node_map.node.becomes(klass)
+				answer_node_map.node.survey = self.survey
+				answer_node_map.node.save
+
+				self.build_answer(answer_node_map.node)
+
+				answer_node_map
+			}
+		end
+
+		# Removes an answer
+		def remove_answer(answer_node)
+			# A survey must either be passed or already present in self.node_maps
+			if self.survey.nil?
+				raise ArgumentError.new "A survey must be passed if ActiveRecordSurvey::Node::Question is not yet added to a survey"
+			end
+
+			if !answer_node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
+				raise ArgumentError.new "::ActiveRecordSurvey::Node::Answer not passed"
+			end
+
+			# Cannot mix answer types
+			# Check if not match existing - throw error
+			if !self.answers.include?(answer_node)
+				raise ArgumentError.new "Answer not linked to question"
+			end
+
+			answer_node.send(:remove_answer, self)
+		end
+
 		# Build an answer off this node
 		def build_answer(answer_node)
 			# A survey must either be passed or already present in self.node_maps
@@ -34,6 +83,9 @@ module ActiveRecordSurvey
 						# Is a question
 						j.parent == answer_node_map.parent && j.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
 					}.each { |j|
+						answer_node_map.survey = self.survey
+						j.survey = self.survey
+
 						answer_node_map.children << j
 					}
 				}

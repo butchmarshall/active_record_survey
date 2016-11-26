@@ -7,6 +7,7 @@ module ActiveRecordSurvey
 			end
 
 			module InstanceMethods
+
 				# Gets index relative to other chained answers
 				def sibling_index
 					if node_map = self.survey.node_maps.select { |i|
@@ -18,12 +19,37 @@ module ActiveRecordSurvey
 					return 0
 				end
 
+				# Chain nodes are different
+				# They must also see if this answer linked to subsequent answers, and re-build the link
+				def remove_answer(question_node)
+					self.survey = question_node.survey
+
+					# The node from answer from the parent question
+					self.survey.node_maps.reverse.select { |i|
+						i.node == self && !i.marked_for_destruction?
+					}.each { |answer_node_map|
+						answer_node_map.children.each { |child|
+							answer_node_map.parent.children << child
+						}
+
+						answer_node_map.send((answer_node_map.new_record?)? :destroy : :mark_for_destruction )
+					}
+				end
+
 				# Chain nodes are different - they must find the final answer node added and add to it
 				# They must also see if the final answer node then points somewhere else - and fix the links on that
 				def build_answer(question_node)
 					self.survey = question_node.survey
 
 					question_node_maps = self.survey.node_maps.select { |i| i.node == question_node && !i.marked_for_destruction? }
+
+					answer_node_maps = self.survey.node_maps.select { |i|
+						i.node == self && i.parent.nil?
+					}.collect { |i|
+						i.survey = self.survey
+
+						i
+					}
 
 					# No node_maps exist yet from this question
 					if question_node_maps.length === 0
@@ -36,18 +62,23 @@ module ActiveRecordSurvey
 					# Each instance of this question needs the answer hung from it
 					self.survey.node_maps.select { |i|
 						i.node == last_answer_in_chain
-					}.each { |node_map|
-						curr_children = self.survey.node_maps.select { |j|
-							node_map.children.include?(j)
-						}
+					}.each_with_index { |node_map, index|
+						if answer_node_maps[index]
+							new_node_map = answer_node_maps[index]
+						else
+							new_node_map = self.survey.node_maps.build(:node => self, :survey => self.survey)
+						end
 
-						new_node_map = self.survey.node_maps.build(:node => self, :survey => self.survey)
+						# Hack - should fix this - why does self.survey.node_maps still think... yea somethigns not referenced right
+						#curr_children = self.survey.node_maps.select { |j|
+						#	node_map.children.include?(j) && j != new_node_map
+						#}
 
 						node_map.children << new_node_map
 
-						curr_children.each { |c|
-							new_node_map.children << c
-						}
+						#curr_children.each { |c|
+						#	new_node_map.children << c
+						#}
 					}
 
 					true
