@@ -115,48 +115,69 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 	end
 
 	describe "#update_question_type" do
-		before(:each) do
-			@survey = ActiveRecordSurvey::Survey.new()
-
-			@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1", :survey => @survey)
-			@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
-			@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A2")
-			@q1.build_answer(@q1_a1)
-			@q1.build_answer(@q1_a2)
-
-			@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2", :survey => @survey)
-			@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A1")
-			@q2.build_answer(@q2_a1)
-
-			@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3", :survey => @survey)
-			@q3_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A1")
-			@q3_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A2")
-			@q3.build_answer(@q3_a1)
-			@q3.build_answer(@q3_a2)
-
-			@survey.save
+		describe "simple case" do
+			before(:each) do
+				@survey = ActiveRecordSurvey::Survey.new()
+	
+				@q1 = ActiveRecordSurvey::Node::Question.new(:text => "Q1", :survey => @survey)
+				@q1_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A1")
+				@q1_a2 = ActiveRecordSurvey::Node::Answer.new(:text => "Q1 A2")
+				@q1.build_answer(@q1_a1)
+				@q1.build_answer(@q1_a2)
+	
+				@q2 = ActiveRecordSurvey::Node::Question.new(:text => "Q2", :survey => @survey)
+				@q2_a1 = ActiveRecordSurvey::Node::Answer.new(:text => "Q2 A1")
+				@q2.build_answer(@q2_a1)
+	
+				@q3 = ActiveRecordSurvey::Node::Question.new(:text => "Q3", :survey => @survey)
+				@q3_a1 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A1")
+				@q3_a2 = ActiveRecordSurvey::Node::Answer::Boolean.new(:text => "Q3 A2")
+				@q3.build_answer(@q3_a1)
+				@q3.build_answer(@q3_a2)
+	
+				@survey.save
+			end
+			it 'should raise exception linked to another question' do
+				@q1_a1.build_link(@q2)
+				@survey.save
+	
+				expect{@q1.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)}.to raise_error(RuntimeError)
+			end
+			it 'should change ActiveRecordSurvey::Node::Answer to ActiveRecordSurvey::Node::Answer::Boolean' do
+				@q1.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)
+				expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Q1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 A2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}, {"text"=>"Q2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 A1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q3 A2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}])
+				expect(@q1.answers.length).to eq(2)
+				@q1.answers.each { |answer|
+					expect(answer.class).to eq(ActiveRecordSurvey::Node::Answer::Boolean)
+				}
+			end
+			it  'should change ActiveRecordSurvey::Node::Answer::Boolean to ActiveRecordSurvey::Node::Answer' do
+				@q3.update_question_type(ActiveRecordSurvey::Node::Answer)
+				expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Q1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 A2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q3 A2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
+				expect(@q3.answers.length).to eq(2)
+				@q3.answers.each { |answer|
+					expect(answer.class).to eq(ActiveRecordSurvey::Node::Answer)
+				}
+			end
 		end
-		it 'should raise exception linked to another question' do
-			@q1_a1.build_link(@q2)
-			@survey.save
+		describe "advanced case", :focus => true  do
+			before(:each) do
+				@survey = FactoryGirl.build(:basic_survey2)
+				@survey.save
+			end
 
-			expect{@q1.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)}.to raise_error(RuntimeError)
-		end
-		it 'should change ActiveRecordSurvey::Node::Answer to ActiveRecordSurvey::Node::Answer::Boolean' do
-			@q1.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)
-			expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Q1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q1 A2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}, {"text"=>"Q2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 A1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q3 A2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}])
-			expect(@q1.answers.length).to eq(2)
-			@q1.answers.each { |answer|
-				expect(answer.class).to eq(ActiveRecordSurvey::Node::Answer::Boolean)
-			}
-		end
-		it  'should change ActiveRecordSurvey::Node::Answer::Boolean to ActiveRecordSurvey::Node::Answer' do
-			@q3.update_question_type(ActiveRecordSurvey::Node::Answer)
-			expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Q1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q1 A2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}, {"text"=>"Q3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 A1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q3 A2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}])
-			expect(@q3.answers.length).to eq(2)
-			@q3.answers.each { |answer|
-				expect(answer.class).to eq(ActiveRecordSurvey::Node::Answer)
-			}
+			it "should convert from ActiveRecordSurvey::Node::Answer to ActiveRecordSurvey::Node::Answer::Boolean and back again" do
+				q4 = nil
+				@survey.questions.each {|question|
+					q4 = question if question.text === "Question #4"
+				}
+
+				q4.update_question_type(ActiveRecordSurvey::Node::Answer::Boolean)
+				expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}, {"text"=>"Q2 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}, {"text"=>"Q3 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}]}]}]}]}, {"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}, {"text"=>"Q3 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}]}]}, {"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[{"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer::Boolean", :children=>[]}]}]}]}]}])
+
+				q4.update_question_type(ActiveRecordSurvey::Node::Answer)
+				expect(@survey.as_map(:no_ids => true)).to eq([{"text"=>"Question #1", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q1 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #2", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q2 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}]}, {"text"=>"Q2 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}]}, {"text"=>"Q3 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}]}]}]}]}]}, {"text"=>"Q1 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #3", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q3 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}]}, {"text"=>"Q3 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}]}]}]}, {"text"=>"Q1 Answer #3", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[{"text"=>"Question #4", :type=>"ActiveRecordSurvey::Node::Question", :children=>[{"text"=>"Q4 Answer #1", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}, {"text"=>"Q4 Answer #2", :type=>"ActiveRecordSurvey::Node::Answer", :children=>[]}]}]}]}])
+			end
 		end
 	end
 

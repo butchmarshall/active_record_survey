@@ -41,10 +41,12 @@ module ActiveRecordSurvey
 				def build_answer(question_node)
 					self.survey = question_node.survey
 
-					question_node_maps = self.survey.node_maps.select { |i| i.node == question_node && !i.marked_for_destruction? }
+					question_node_maps = self.survey.node_maps.select { |i|
+						i.node == question_node && !i.marked_for_destruction?
+					}
 
 					answer_node_maps = self.survey.node_maps.select { |i|
-						i.node == self && i.parent.nil?
+						i.node == self && i.parent.nil? && !i.marked_for_destruction?
 					}.collect { |i|
 						i.survey = self.survey
 
@@ -61,7 +63,7 @@ module ActiveRecordSurvey
 
 					# Each instance of this question needs the answer hung from it
 					self.survey.node_maps.select { |i|
-						i.node == last_answer_in_chain
+						i.node == last_answer_in_chain && !i.marked_for_destruction?
 					}.each_with_index { |node_map, index|
 						if answer_node_maps[index]
 							new_node_map = answer_node_maps[index]

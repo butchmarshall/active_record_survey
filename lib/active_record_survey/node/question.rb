@@ -15,7 +15,7 @@ module ActiveRecordSurvey
 
 			nm = self.survey.node_maps
 
-			self.answers.collect { |answer|
+			answers = self.answers.collect { |answer|
 				nm.select { |i|
 					i.node == answer
 				}
@@ -30,9 +30,15 @@ module ActiveRecordSurvey
 				answer_node_map.node.survey = self.survey
 				answer_node_map.node.save
 
-				self.build_answer(answer_node_map.node)
+				answer_node_map.send((answer_node_map.new_record?)? :destroy : :mark_for_destruction)
 
-				answer_node_map
+				answer_node_map.node
+			}.uniq
+
+			answers.each { |answer|
+				answer.survey = self.survey
+
+				self.build_answer(answer)
 			}
 		end
 
@@ -76,11 +82,12 @@ module ActiveRecordSurvey
 
 				# If any questions existed directly following this question, insert after this answer
 				self.survey.node_maps.select { |i|
-					i.node == answer_node
+					i.node == answer_node && !i.marked_for_destruction?
 				}.each { |answer_node_map|
 					self.survey.node_maps.select { |j|
 						# Same parent
 						# Is a question
+						!j.marked_for_destruction? &&
 						j.parent == answer_node_map.parent && j.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Question)
 					}.each { |j|
 						answer_node_map.survey = self.survey
