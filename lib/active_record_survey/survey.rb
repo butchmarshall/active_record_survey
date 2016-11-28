@@ -5,6 +5,8 @@ module ActiveRecordSurvey
 		has_many :nodes, :class_name => "ActiveRecordSurvey::Node", :foreign_key => :active_record_survey_id
 		has_many :questions, :class_name => "ActiveRecordSurvey::Node::Question", :foreign_key => :active_record_survey_id
 
+		default_scope { includes(node_maps:[:node,parent:[:node]]) }
+
 		def root_node
 			self.node_maps.includes(:node).select { |i| i.depth === 0 }.first
 		end
