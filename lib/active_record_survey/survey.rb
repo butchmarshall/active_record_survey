@@ -26,7 +26,8 @@ module ActiveRecordSurvey
 
 		# All the connective edges
 		def edges
-			self.node_maps.select { |i| !i.marked_for_destruction? }.select { |i|
+			self.node_maps.includes(:node, parent:[ :node ])
+			.select { |i| !i.marked_for_destruction? }.select { |i|
 				i.node && i.parent
 			}.collect { |i|
 				{
