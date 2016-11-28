@@ -160,7 +160,7 @@ describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 				}
 			end
 		end
-		describe "advanced case", :focus => true  do
+		describe "advanced case" do
 			before(:each) do
 				@survey = FactoryGirl.build(:basic_survey2)
 				@survey.save

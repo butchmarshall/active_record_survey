@@ -91,18 +91,19 @@ module ActiveRecordSurvey
 
 		# Gets index in sibling relationship
 		def sibling_index
-			if node_map = self.survey.node_maps.select { |i|
-				i.node == self
-			}.first
+			node_maps = self.survey.node_maps.includes(:node, parent: [:node])
 
-				node_map.parent.children.each_with_index { |nm, i|
+			if node_map = node_maps.select { |i| i.node == self }.first
+				parent = node_map.parent
+
+				children = node_maps.select { |i| i.parent && i.parent.node === parent.node }
+
+				children.each_with_index { |nm, i|
 					if nm == node_map
 						return i
 					end
 				}
 			end
-
-			return 0
 		end
 
 		def sibling_index=index
