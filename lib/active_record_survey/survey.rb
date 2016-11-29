@@ -1,11 +1,9 @@
 module ActiveRecordSurvey
 	class Survey < ::ActiveRecord::Base
 		self.table_name = "active_record_surveys"
-		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_id, autosave: true
+		has_many :node_maps, -> { includes(:node, parent: [:node]) }, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_id, autosave: true
 		has_many :nodes, :class_name => "ActiveRecordSurvey::Node", :foreign_key => :active_record_survey_id
 		has_many :questions, :class_name => "ActiveRecordSurvey::Node::Question", :foreign_key => :active_record_survey_id
-
-		default_scope { includes(node_maps:[:node,parent:[:node]]) }
 
 		def root_node
 			self.node_maps.includes(:node).select { |i| i.depth === 0 }.first
@@ -28,8 +26,7 @@ module ActiveRecordSurvey
 
 		# All the connective edges
 		def edges
-			self.node_maps.includes(:node, parent:[ :node ])
-			.select { |i| !i.marked_for_destruction? }.select { |i|
+			self.node_maps.select { |i| !i.marked_for_destruction? }.select { |i|
 				i.node && i.parent
 			}.collect { |i|
 				{

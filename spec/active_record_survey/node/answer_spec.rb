@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+#ActiveRecord::Base.logger = Logger.new(STDOUT) if defined?(ActiveRecord::Base)
+
 describe ActiveRecordSurvey::Node::Answer, :answer_spec => true do
 
 	describe '#sibling_index' do

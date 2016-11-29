@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+#ActiveRecord::Base.logger = Logger.new(STDOUT) if defined?(ActiveRecord::Base)
+
 describe ActiveRecordSurvey::Node::Question, :question_spec => true do
 	describe "#before_destroy_rebuild_node_map" do
 		it 'should not relink any following questions' do

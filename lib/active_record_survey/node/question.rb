@@ -20,19 +20,15 @@ module ActiveRecordSurvey
 					i.node == answer
 				}
 			}.flatten.uniq.collect { |answer_node_map|
-				answer_node_map.move_to_root
-				answer_node_map.survey = self.survey
-
-				answer_node_map
-			}.collect { |answer_node_map|
-				answer_node_map.node.type = klass.to_s
-				answer_node_map.node = answer_node_map.node.becomes(klass)
-				answer_node_map.node.survey = self.survey
-				answer_node_map.node.save
-
+				node = answer_node_map.node
 				answer_node_map.send((answer_node_map.new_record?)? :destroy : :mark_for_destruction)
+				node
+			}.collect { |answer|
+				answer.type = klass.to_s
+				answer = answer.becomes(klass)
+				answer.save if !answer.new_record?
 
-				answer_node_map.node
+				answer
 			}.uniq
 
 			answers.each { |answer|

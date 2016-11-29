@@ -2,7 +2,7 @@ module ActiveRecordSurvey
 	class Node < ::ActiveRecord::Base
 		self.table_name = "active_record_survey_nodes"
 		belongs_to :survey, :class_name => "ActiveRecordSurvey::Survey", :foreign_key => :active_record_survey_id
-		has_many :node_maps, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_node_id, autosave: true, dependent: :destroy
+		has_many :node_maps, -> { includes(:node, parent: [:node]) }, :class_name => "ActiveRecordSurvey::NodeMap", :foreign_key => :active_record_survey_node_id, autosave: true, dependent: :destroy
 		has_many :node_validations, :class_name => "ActiveRecordSurvey::NodeValidation", :foreign_key => :active_record_survey_node_id, autosave: true, dependent: :destroy
 		has_many :instance_nodes, :class_name => "ActiveRecordSurvey::InstanceNode", :foreign_key => :active_record_survey_node_id
 
@@ -10,9 +10,10 @@ module ActiveRecordSurvey
 
 		# All the answer nodes that follow from this node
 		def answers
-#=begin
-			next_answer_nodes = lambda { |node, survey, list|
-				survey.node_maps.select { |node_map|
+			nm = self.survey.node_maps
+
+			next_answer_nodes = lambda { |node, list|
+				nm.select { |node_map|
 					!node_map.parent.nil? && node_map.parent.node == node && node_map.node.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer) && !node_map.marked_for_destruction?
 				}.select { |i|
 					!list.include?(i.node)
@@ -22,30 +23,12 @@ module ActiveRecordSurvey
 
 					list << i.node
 
-					next_answer_nodes.call(i.node, survey, list)
+					next_answer_nodes.call(i.node, list)
 				}.flatten.uniq
 
 				list
 			}
-			next_answer_nodes.call(self, self.survey, []).flatten.uniq
-#=end
-=begin
-			self.survey.node_maps.select { |i|
-				i.node == self
-			}.collect { |i|
-				# Get all the children from this node
-				i.children
-			}.flatten.collect { |i|
-				# Get the nodes
-				i.node
-			}.select { |i|
-				# Only the nodes that are answers
-				i.class.ancestors.include?(::ActiveRecordSurvey::Node::Answer)
-			}.uniq.collect { |i|
-				i.survey = self.survey # ensure that the survey being referenced by the answers is the original survey - needed for keeping consistent node_maps between build_link and remove_link
-				[i] + i.answers
-			}.flatten.uniq
-=end
+			next_answer_nodes.call(self, []).flatten.uniq
 		end
 
 		# The instance_node recorded for the passed instance for this node
